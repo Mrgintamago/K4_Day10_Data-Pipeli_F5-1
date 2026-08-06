@@ -226,3 +226,56 @@ Theo loại câu hỏi: `authors` 0.917 · `date` 0.917 · `summary` 0.958 · `r
 **Quyết định: KHÔNG sửa.** Nếu đổi test set sang nháy đơn thì `lookup()` sẽ trả đúng tài liệu bằng tra cứu tiêu đề, **bỏ qua embedding**. Khi đó corruption làm hỏng `text_for_embedding` sẽ **không** kéo `retrieval_hit_rate` xuống — che mất chính thứ bài lab cần đo. Giữ nguyên để retrieval thực sự là semantic.
 
 Baseline 0.918 với 6 lỗi giải thích được là baseline tốt: thật, và còn dư địa để corruption kéo xuống.
+
+### `17:2x` — ✅ 📥 **T9 Corruption** · TV2 Hân · `5bed53f`
+
+`corruption.py` (+302 dòng) + `corruption_log.json` có schema đầy đủ: `baseline_rows`, `corrupted_rows`, `baseline_paper_ids`, `corrupted_paper_ids`, `events` — mỗi event ghi `corruption_type`, `affected_paper_ids`, `parameter`, `before`, `after`.
+
+Đủ **6 loại lỗi có chủ đích**, 24 rows → 22 rows:
+
+| Loại | Số record | Tham số |
+| --- | ---: | --- |
+| `drop_latest` | 5 | `fraction=0.2`, sắp theo `age_days` |
+| `blank_summary` | 3 | `fraction=0.15` |
+| `noise_summary` | 4 | `fraction=0.2`, token `corruptnoise` |
+| `truncate_title` | 19 | `chars=40` |
+| `stale_published_date` | 19 | `years_back=5` |
+| `duplicate_rows` | 3 | `fraction=0.15` |
+
+### `17:3x` — ✅ **T11 Corruption flow chạy end-to-end** · TV4 — PHA 2 XONG
+
+```
+[1/5] baseline: 24 rows, hit_rate=1.000
+[2/5] corrupted: 22 rows
+  [corrupted] collection=papers-corrupted hit_rate=0.740 token_f1=0.269 judge_acc=0.260
+[3/5] repaired: 24 rows (rebuilt tu crossref_records.json)
+  [repaired] collection=papers-repaired hit_rate=1.000 token_f1=0.921 judge_acc=0.918
+[4/5] da danh gia du 3 trang thai tren cung test set
+[5/5] comparison report -> data/reports/corruption_report.md
+```
+
+| Metric | Baseline | Corrupted | Repaired | Δ corrupt |
+| --- | ---: | ---: | ---: | ---: |
+| `retrieval_hit_rate` | 1.000 | **0.740** | 1.000 | **−0.260** |
+| `mean_token_f1` | 0.921 | **0.269** | 0.921 | **−0.652** |
+| `judge_accuracy` | 0.918 | **0.260** | 0.918 | **−0.658** |
+| `mean_judge_score` | 4.671 | **2.041** | 4.671 | **−2.630** |
+
+- **`repaired == baseline` chính xác đến từng chữ số** ⇒ repair từ raw hoạt động, và cleaning là tất định (chạy lại cho kết quả y hệt).
+- **Judge thật cả 3 bộ:** fallback 0/73 mỗi bộ ⇒ số liệu judge đọc được, không phải token F1 trá hình.
+
+**Chuỗi bằng chứng đầy đủ** (yêu cầu cốt lõi của rubric):
+
+| Thay đổi dữ liệu | Tín hiệu quality/freshness bắt được | Metric bị kéo xuống |
+| --- | --- | --- |
+| 3 duplicate rows | `paper_id_unique` **FAIL** (3 trùng) | `hit_rate` −0.26 |
+| 3 summary rỗng | `summary_length` **FAIL** (`min_chars` 826 → **0**) | `token_f1` −0.65 |
+| Lùi ngày 5 năm | `freshness` **FAIL** — `latest_published` 2026-08-01 → **2021-07-02**, stale 22/22 | `judge_acc` −0.66 |
+
+Quality corrupted: `overall_pass: false`, 3 check fail. Quality repaired: `overall_pass: true`, `is_fresh: true`, 0 stale, 24 rows.
+
+### `17:3x` — 📥 T8 báo cáo baseline · TV3 Sáng · `115d6b6`
+
+Pull về `phase1_report.md` + artifact từ lần chạy của Sáng.
+
+**Lưu ý provenance:** `baseline_answers.json` bản của Sáng có **fallback judge 73/73** (máy Sáng chưa có key ai-box). Bốn số tổng hợp vẫn khớp tuyệt đối với bản chạy judge thật — vì QA ở đây là *extractive*, `token_f1` phân bố nhị cực (67 câu = 1.0, 6 câu = 0.0) nên heuristic và LLM judge cho cùng kết luận. Đã chạy lại `run_phase1.py` bằng key ai-box để cả 3 bộ answers cùng dùng judge thật, tránh người chấm thấy `reasoning` lẫn lộn.
