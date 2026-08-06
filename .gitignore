@@ -5,3 +5,7 @@ lab.txt
 src/*.egg-info/
 lab/
 **/__pycache__/
+.claude/
+.gitnexus/
+AGENTS.md
+CLAUDE.md
