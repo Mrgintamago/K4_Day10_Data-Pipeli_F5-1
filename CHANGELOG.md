@@ -17,18 +17,20 @@ Ký hiệu: ✅ xong & đã xác minh · 🟡 code xong, chờ blocker · ⬜ ch
 | T2 Raw ingestion | TV1 Tường | ✅ merged `main` (PR #1) | CP1 |
 | T3 Clean dataframe | TV2 Hân | ✅ 24 rows, đủ 10 cột | CP2 |
 | T4 Test set | TV2 Hân | ✅ 73 samples | CP2 |
-| T5 Quality + freshness | TV3 Sáng | ⬜ **đang chặn cả nhóm** | CP2 |
+| T5 Quality + freshness | TV3 Sáng | ✅ 7 check pass, `is_fresh` true | CP2 |
 | T6 Index + eval wiring | TV4 Quang | ✅ chạy thật, hit_rate=1.000 | CP2 |
-| T7 Baseline pipeline | TV4 Quang | 🟡 qua 5/7 bước, chờ T5 | CP3 |
-| T8 Baseline report | TV3 Sáng | ⬜ | CP3 |
-| T9 Corruption + log | TV2 Hân | ⬜ | CP4 |
+| T7 Baseline pipeline | TV4 Quang | ✅ **chạy hết 7/7 bước** | CP3 |
+| T8 Baseline report | TV3 Sáng | ✅ `phase1_report.md` khớp JSON | CP3 |
+| T9 Corruption + log | TV2 Hân | ⬜ **đang chặn cả nhóm** | CP4 |
 | T10 Repair từ raw | **TV1** (đổi từ TV2+TV1) | ⬜ chỉ còn xác minh, code đã có | CP4 |
 | T11 Corruption flow | TV4 Quang | 🟡 chờ T7 | CP5 |
 | T12 Comparison report | TV3 Sáng | ⬜ | CP5 |
 | T13 Group + báo cáo cá nhân | TV4 chủ trì | ⬜ (4 file cá nhân đã tạo khung) | CP6 |
 | T14 Review + demo | Cả nhóm | ⬜ | CP6 |
 
-**Blocker duy nhất:** T5 `run_data_quality_checks` (`src/observability/quality.py:21`). Baseline pipeline đã chạy qua 5/7 bước và dừng ở đây.
+**Pha 1 XONG.** `script/run_phase1.py` chạy hết 7/7 bước, đủ artifact. Blocker còn lại: **T9 corruption** (TV2 Hân) — chặn T11, T12, T13.
+
+🔴 **Cần sửa gấp trước T9:** 24/24 câu hỏi loại `authors` fail hệ thống do test set không khớp matcher trong `qa.py` — xem mục cuối nhật ký. Sửa xong `judge_accuracy` lên 0.589 → 0.918.
 
 ---
 
