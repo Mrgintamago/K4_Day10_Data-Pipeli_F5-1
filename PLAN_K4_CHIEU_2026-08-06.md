@@ -139,7 +139,8 @@ flowchart LR
 
 - Đã có sẵn, **không viết lại**: `src/core/config.py` + `utils.py`, `src/retrieval/*` (MiniLM, Chroma, LLM multi-provider, QA, agent), `src/evaluation/metrics.py`.
 - `data/` mới chỉ có `.gitkeep`, chưa có artifact thật.
-- Máy: `python --version` = **3.14.6** (ngoài dải `>=3.11,<3.14`), nhưng đã có **3.11 qua `py -V:3.11`**; `uv` đã cài. **Chưa có `.venv`, chưa có `.env`.**
+- Máy: `python --version` = **3.14.6** (ngoài dải `>=3.11,<3.14`), nhưng đã có **3.11 qua `py -V:3.11`**; `uv` đã cài.
+- **Cập nhật trên máy TV4 (đã chuẩn bị trước buổi):** `.venv` Python 3.11.9 + `.env` đã có; model MiniLM đã cache (384 chiều); `pipelines/phase1.py` và `pipelines/corruption_flow.py` (T7, T11) đã viết xong và import sạch — chạy `run_phase1.py` hiện dừng đúng ở `crossref.py` (T2 của TV1). Ba máy còn lại vẫn phải tự làm T0.
 
 ## 3. Contract dùng chung (chốt trong 20 phút đầu, không đổi sau checkpoint 1)
 
@@ -154,25 +155,38 @@ flowchart LR
 
 ## 4. Bảng công việc và quan hệ chặn
 
-Đọc theo cột **Chặn bởi**: task chỉ được bắt đầu khi mọi task trong cột đó đã "xong theo cột Xong khi". Cột **Chặn** cho biết ai đang chờ mình — trễ task có nhiều số ở cột này là trễ cả nhóm.
+Đọc theo cột **Chặn bởi**: task chỉ được bắt đầu khi mọi task trong cột đó đã "xong theo cột Xong khi". Cột **Chặn** cho biết ai đang chờ mình — trễ task có nhiều số ở cột này là trễ cả nhóm. Cột **CP** là checkpoint task phải xong (chi tiết từng checkpoint ở mục 5); task nào trải hai checkpoint thì phải *bắt đầu* ở CP đầu và *xong* ở CP sau.
 
-| ID | Task | File / lệnh | Owner | Chặn bởi | Chặn | Xong khi |
-| --- | --- | --- | --- | --- | --- | --- |
-| T0 | Setup env + `.env` | `uv sync --python 3.11` | Cả nhóm | — | T1–T12 | `uv run python --version` = 3.11.x, import OK |
-| T1 | Chốt contract (mục 3) | file plan này | Cả nhóm | T0 | T2–T12 | 4 owner đọc lại schema và không ai đề xuất đổi |
-| T2 | Fetch + parse + load raw | `ingestion/crossref.py` | TV1 | T0, T1 | T3, T4, T10 | `data/raw/*.json` đọc lại được, `paper_id` không rỗng |
-| T3 | Clean dataframe | `ingestion/cleaning.py` | TV2 | T2 | T4, T5, T6, T9 | clean CSV/JSON đủ 10 cột, `paper_id` unique |
-| T4 | Test set | `evaluation/testset.py` | TV2 | T3 | T6, T7 | mọi `ground_truth_doc_ids` tồn tại trong clean data |
-| T5 | Quality + freshness | `observability/quality.py` | TV3 | T3 | T7, T8, T11 | chạy được trên clean thật, ra JSON có kết quả pass/fail |
-| T6 | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
-| T7 | Baseline pipeline | `pipelines/phase1.py` | TV4 | T2, T3, T4, T5, T6 | T8, T9, T11 | `run_phase1.py` sinh đủ artifact ở CP3 |
-| T8 | Baseline report | `observability/reporting.py::generate_phase1_report` | TV3 | T5, T7 | T12 | mọi số trong `phase1_report.md` khớp JSON |
-| T9 | Corruption + log | `ingestion/corruption.py` | TV2 | T3, T7 | T10, T11 | `corruption_log.json` ghi rõ loại lỗi, record, trước/sau |
-| T10 | Repair từ raw | trong `corruption_flow.py` | TV2 + TV1 | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
-| T11 | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
-| T12 | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
-| T13 | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
-| T14 | Review rubric + demo | — | Cả nhóm | T13 | — | chạy lại 2 entrypoint sạch, `git status` gọn |
+| ID | CP (giờ) | Task | File / lệnh | Owner | Chặn bởi | Chặn | Xong khi |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T0 | **CP0** `00:00–00:20` | Setup env + `.env` | `uv sync --python 3.11` | Cả nhóm | — | T1–T12 | `uv run python --version` = 3.11.x, import OK |
+| T1 | **CP0** `00:00–00:20` | Chốt contract (mục 3) | file plan này | Cả nhóm | T0 | T2–T12 | 4 owner đọc lại schema và không ai đề xuất đổi |
+| T2 | **CP1** `00:20–00:50` | Fetch + parse + load raw | `ingestion/crossref.py` | TV1 | T0, T1 | T3, T4, T10 | `data/raw/*.json` đọc lại được, `paper_id` không rỗng |
+| T3 | CP1 → **CP2** `00:20–01:20` | Clean dataframe | `ingestion/cleaning.py` | TV2 | T2 | T4, T5, T6, T9 | clean CSV/JSON đủ 10 cột, `paper_id` unique |
+| T4 | CP1 → **CP2** `00:20–01:20` | Test set | `evaluation/testset.py` | TV2 | T3 | T6, T7 | mọi `ground_truth_doc_ids` tồn tại trong clean data |
+| T5 | CP1 → **CP2** `00:20–01:20` | Quality + freshness | `observability/quality.py` | TV3 | T3 | T7, T8, T11 | chạy được trên clean thật, ra JSON có kết quả pass/fail |
+| T6 | CP1 → **CP2** `00:20–01:20` | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
+| T7 | **CP3** `01:20–02:00` | Baseline pipeline | `pipelines/phase1.py` | TV4 | T2, T3, T4, T5, T6 | T8, T9, T11 | `run_phase1.py` sinh đủ artifact ở CP3 |
+| T8 | CP2 → **CP3** `00:50–02:00` | Baseline report | `observability/reporting.py::generate_phase1_report` | TV3 | T5, T7 | T12 | mọi số trong `phase1_report.md` khớp JSON |
+| T9 | **CP4** `02:15–02:55` | Corruption + log | `ingestion/corruption.py` | TV2 | T3, T7 | T10, T11 | `corruption_log.json` ghi rõ loại lỗi, record, trước/sau |
+| T10 | **CP4** `02:15–02:55` | Repair từ raw | trong `corruption_flow.py` | TV2 + TV1 | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
+| T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
+| T12 | CP4 → **CP5** `02:15–03:25` | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
+| T13 | **CP6** `03:25–04:00` | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
+| T14 | **CP6** `03:25–04:00` | Review rubric + demo | — | Cả nhóm | T13 | — | chạy lại 2 entrypoint sạch, `git status` gọn |
+
+**Mốc chốt cứng theo checkpoint** — đến giờ mà chưa qua thì cắt phạm vi, không kéo dài:
+
+| Checkpoint | Giờ | Phải xong | Nếu trễ thì cắt gì |
+| --- | --- | --- | --- |
+| CP0 | `00:20` | T0, T1 | Không cắt được — trễ CP0 là trễ toàn bộ, ưu tiên gỡ ngay |
+| CP1 | `00:50` | T2 (handoff raw) | TV2 tiếp tục trên sample record thay vì chờ raw thật |
+| CP2 | `01:20` | T3, T4, T5, T6 | Giảm `max_results`, giảm số câu trong test set |
+| CP3 | `02:00` | T7, T8 | Bỏ agent demo và Ragas, giữ đủ artifact bắt buộc |
+| — | `02:00–02:15` | Nghỉ + ghi blocker | — |
+| CP4 | `02:55` | T9, T10 | Giảm số loại corruption (giữ ≥3 loại có tín hiệu rõ) |
+| CP5 | `03:25` | T11, T12 | Bỏ visualization, giữ bảng số + delta |
+| CP6 | `04:00` | T13, T14 | Rút gọn báo cáo cá nhân, giữ nguyên `group_report.md` |
 
 **Đường găng (critical path):** `T0 → T1 → T2 → T3 → T4 → T6 → T7 → T9 → T11 → T12 → T13`. Mọi task ngoài chuỗi này (T5, T8, T10) có slack — nếu trễ đường găng thì dừng việc khác để gỡ.
 
