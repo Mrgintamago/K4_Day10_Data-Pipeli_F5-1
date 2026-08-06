@@ -306,6 +306,7 @@ uv run python script/run_corruption_flow.py
 - TV4 chạy lại 2 entrypoint trên bản nộp + kiểm `git status`.
 - Cả nhóm soi `Rubric.md`: không `.env`/secret, không hard-code path, report khớp artifact.
 - Demo theo luồng: raw → clean → baseline → corruption → quality signal đổi → repair → comparison.
+- **CLI hỏi–đáp (bonus, đã có sẵn):** `uv run python script/ask.py "<câu hỏi>"` — in câu trả lời, top-k `paper_id` + score, và HIT/MISS nếu câu hỏi nằm trong test set. Thêm `--state corrupted` / `--state repaired` để demo trực tiếp cùng một câu hỏi trên ba trạng thái dữ liệu; đây là cách cho người chấm thấy tác động của corruption trong 30 giây mà không cần đọc JSON.
 
 ## 6. Quy tắc phối hợp
 
