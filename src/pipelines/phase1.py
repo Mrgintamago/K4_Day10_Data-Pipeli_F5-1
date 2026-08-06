@@ -38,7 +38,25 @@ def load_or_build_test_set(settings: Settings, df: pd.DataFrame) -> tuple[list[d
     return read_json(test_set_path), "loaded_existing"
 
 
+def sanitize_missing(df: pd.DataFrame) -> pd.DataFrame:
+    """Doi NaN o cot text thanh chuoi rong.
+
+    Ly do: `pd.read_csv` doc o trong thanh NaN (float). NaN di vao hai cho:
+    - `json.dumps` sinh token `NaN` -> file KHONG hop le theo RFC 8259,
+      `jq` va `JSON.parse` deu tu choi.
+    - Chroma metadata -> `qa.py::_extract_answer` goi `first_sentence(NaN)`
+      va crash TypeError.
+    Chuan hoa mot lan tai tang dieu phoi, khong sua logic cua owner khac.
+    """
+    cleaned = df.copy()
+    for column in cleaned.columns:
+        if cleaned[column].dtype == object:
+            cleaned[column] = cleaned[column].fillna("")
+    return cleaned
+
+
 def save_clean_dataframe(df: pd.DataFrame, csv_path, json_path) -> None:
+    df = sanitize_missing(df)
     write_csv(df, csv_path)
     write_json(json_path, df.to_dict(orient="records"))
 
@@ -70,7 +88,7 @@ def main() -> None:
     save_clean_dataframe(df, paths.clean_csv, paths.clean_json)
     print(f"[2/7] clean rows: {len(df)} -> {paths.clean_csv}")
 
-    index = LocalEmbeddingIndex.build(df, settings=settings, embeddings_output_path=paths.embeddings_json)
+    index = LocalEmbeddingIndex.build(sanitize_missing(df), settings=settings, embeddings_output_path=paths.embeddings_json)
     print(f"[3/7] indexed collection: {index.collection_name}")
 
     test_set, test_set_mode = load_or_build_test_set(settings, df)

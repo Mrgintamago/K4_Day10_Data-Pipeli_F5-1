@@ -13,6 +13,7 @@ from ingestion.corruption import corrupt_clean_dataframe
 from ingestion.crossref import load_raw_records
 from observability.quality import build_freshness_report, run_data_quality_checks
 from observability.reporting import generate_corruption_report
+from pipelines.phase1 import sanitize_missing
 from retrieval.index import LocalEmbeddingIndex
 
 
@@ -32,6 +33,7 @@ def require_baseline_artifacts(settings: Settings) -> None:
 
 
 def save_state_dataframe(df: pd.DataFrame, csv_path: Path, json_path: Path) -> None:
+    df = sanitize_missing(df)
     write_csv(df, csv_path)
     write_json(json_path, df.to_dict(orient="records"))
 
@@ -50,7 +52,7 @@ def evaluate_state(
     answers_path: Path,
 ) -> tuple[EvaluationBundle, dict[str, Any], dict[str, Any]]:
     """Index -> evaluate -> quality/freshness cho mot trang thai du lieu."""
-    index = LocalEmbeddingIndex.build(df, settings=settings, embeddings_output_path=embeddings_path)
+    index = LocalEmbeddingIndex.build(sanitize_missing(df), settings=settings, embeddings_output_path=embeddings_path)
     bundle = evaluate_pipeline(
         settings=settings,
         index=index,
@@ -76,7 +78,7 @@ def main() -> None:
     paths = settings.paths
 
     baseline_metrics = read_json(paths.baseline_metrics)
-    baseline_df = pd.read_csv(paths.clean_csv)
+    baseline_df = sanitize_missing(pd.read_csv(paths.clean_csv))
     print(f"[1/5] baseline: {len(baseline_df)} rows, hit_rate={baseline_metrics['retrieval_hit_rate']:.3f}")
 
     corrupted_df = corrupt_clean_dataframe(baseline_df.copy(deep=True), paths.corruption_log)
