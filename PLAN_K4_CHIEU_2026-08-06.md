@@ -2,6 +2,7 @@
 
 > **Thời lượng:** 4 giờ (3h45 làm việc + 15 phút nghỉ).
 > **Mục tiêu bắt buộc:** baseline chạy end-to-end → corrupt có kiểm soát → repair từ raw → comparison report khớp artifact thật.
+> **Lý thuyết (vì sao làm từng bước):** [THEORY.md](THEORY.md) — đọc trước CP0 nếu chưa nắm RAG/observability.
 
 ## 1. Thông tin nhóm
 
@@ -19,6 +20,107 @@ Vai trò chia theo ba khối của pipeline RAG: **DATA** (đưa dữ liệu và
 - **TỔNG HỢP (TV3):** sở hữu mọi thứ sau khi có số — quality checks, freshness, `phase1_report.md`, `corruption_report.md`; đóng góp phần số liệu/nhận xét cho `group_report.md` do TV4 chủ trì.
 
 Khi pipeline lỗi ở khối nào, owner khối đó chẩn đoán và bàn giao bản đã xác minh, không đẩy hết cho TV4.
+
+## 1.1 Sơ đồ pipeline
+
+### A. Luồng dữ liệu và ranh giới owner
+
+Đọc theo mũi tên: mỗi node là **một artifact có thật trên đĩa**. Ranh giới giữa hai khối màu chính là handoff — chỗ dễ đổ lỗi nhất nếu không chốt schema trước.
+
+```mermaid
+flowchart TD
+    API([Crossref REST API<br/>query + filter từ config])
+
+    subgraph DATA["DATA — TV1 Tường, TV2 Hân"]
+        RAWRESP["data/raw/crossref_response.json<br/><i>raw nguyên vẹn, bất biến</i>"]
+        RAWREC["data/raw/crossref_records.json<br/><i>PaperRecord đã parse</i>"]
+        CLEAN["data/clean/papers_clean.csv|.json<br/><i>10 cột, paper_id unique</i>"]
+        TESTSET["data/eval/test_set.json<br/><i>cố định, không sinh lại</i>"]
+    end
+
+    subgraph RETR["TRUY TÌM — TV4 Quang"]
+        EMB["data/embeddings/papers_embeddings.json<br/>MiniLM-L6-v2"]
+        CHROMA[("ChromaDB<br/>collection papers-baseline<br/>cosine, top_k=4")]
+        AGENT["QA / agent<br/>retrieval → LLM"]
+        METRICS["data/results/baseline_metrics.json<br/>baseline_answers.json"]
+    end
+
+    subgraph OBS["TỔNG HỢP — TV3 Sáng"]
+        QUALITY["data/quality/*.json<br/><i>null, unique, độ dài summary</i>"]
+        FRESH["data/quality/freshness_report.json<br/><i>is_fresh, stale_rows (180 ngày)</i>"]
+        REPORT["data/reports/phase1_report.md"]
+    end
+
+    API -->|"T2 fetch, lưu TRƯỚC khi parse"| RAWRESP
+    RAWRESP -->|T2 parse| RAWREC
+    RAWREC -->|T3 clean| CLEAN
+    CLEAN -->|T4| TESTSET
+    CLEAN -->|T6 embed| EMB --> CHROMA
+    TESTSET --> AGENT
+    CHROMA --> AGENT
+    AGENT -->|T6/T7 evaluate| METRICS
+    CLEAN -->|T5| QUALITY
+    CLEAN -->|T5| FRESH
+    METRICS --> REPORT
+    QUALITY --> REPORT
+    FRESH --> REPORT
+
+    RAWREC -.->|"T10 repair: chạy lại cleaning từ raw"| CLEAN
+
+    classDef data fill:#e8f0fe,stroke:#4285f4,color:#1a1a1a
+    classDef retr fill:#e6f4ea,stroke:#34a853,color:#1a1a1a
+    classDef obs fill:#fef7e0,stroke:#f9ab00,color:#1a1a1a
+    class RAWRESP,RAWREC,CLEAN,TESTSET data
+    class EMB,CHROMA,AGENT,METRICS retr
+    class QUALITY,FRESH,REPORT obs
+```
+
+**Điều phải nhớ từ sơ đồ A:** `data/raw/` là bất biến và là **nguồn duy nhất** để repair (mũi tên nét đứt). Mọi path lấy từ `Paths` trong `src/core/config.py`, không hard-code.
+
+### B. Ba trạng thái so sánh — biến duy nhất là chất lượng dữ liệu
+
+```mermaid
+flowchart LR
+    RAW["data/raw/<br/>crossref_records.json"]
+    TS["data/eval/test_set.json<br/><b>DÙNG CHUNG cả 3 nhánh</b><br/>top_k=4, cùng evaluator, cùng model"]
+
+    subgraph B["1 — BASELINE (T7)"]
+        BC["papers_clean.csv"] --> BCOL[("papers-baseline")] --> BM["baseline_metrics.json"]
+    end
+
+    subgraph C["2 — CORRUPTED (T9, T11)"]
+        CC["papers_clean_corrupted.csv<br/>+ corruption_log.json"] --> CCOL[("papers-corrupted")] --> CM["corrupted_metrics.json"]
+    end
+
+    subgraph R["3 — REPAIRED (T10, T11)"]
+        RC["papers_clean_repaired.csv<br/><i>sinh lại từ raw, KHÔNG copy baseline</i>"] --> RCOL[("papers-repaired")] --> RM["repaired_metrics.json"]
+    end
+
+    RAW --> BC
+    BC -->|"6 loại lỗi có chủ đích"| CC
+    RAW ==>|"repair = chạy lại cleaning"| RC
+
+    TS -.-> BM
+    TS -.-> CM
+    TS -.-> RM
+
+    BM --> CMP["data/reports/corruption_report.md<br/>baseline / corrupted / repaired + delta"]
+    CM --> CMP
+    RM --> CMP
+
+    CMP --> EV["Chuỗi bằng chứng bắt buộc:<br/>data change → quality/freshness signal → metric"]
+
+    classDef ok fill:#e6f4ea,stroke:#34a853,color:#1a1a1a
+    classDef bad fill:#fce8e6,stroke:#ea4335,color:#1a1a1a
+    classDef fix fill:#e8f0fe,stroke:#4285f4,color:#1a1a1a
+    classDef out fill:#fef7e0,stroke:#f9ab00,color:#1a1a1a
+    class BC,BCOL,BM ok
+    class CC,CCOL,CM bad
+    class RC,RCOL,RM fix
+    class CMP,EV out
+```
+
+**Điều phải nhớ từ sơ đồ B:** ba nhánh chỉ khác nhau ở **chất lượng dữ liệu**; test set, `top_k`, evaluator và model phải giống hệt nhau, nếu không thì delta vô nghĩa. Ba collection tách tên vì `LocalEmbeddingIndex.build` xóa collection trùng tên trước khi tạo lại — dùng chung tên là mất baseline.
 
 ## 2. Hiện trạng workspace (đã kiểm tra 06/08)
 
