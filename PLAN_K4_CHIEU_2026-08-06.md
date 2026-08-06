@@ -155,22 +155,24 @@ flowchart LR
 
 ## 4. Bảng công việc và quan hệ chặn
 
+Ký hiệu ở cột ID: ✅ đã xong và đã xác minh · 🟡 code viết xong nhưng chưa chạy được vì còn bị chặn · (trống) chưa bắt đầu. Xem chi tiết ở [mục 4.1](#41-tiến-độ-cập-nhật-lần-cuối-0608).
+
 Đọc theo cột **Chặn bởi**: task chỉ được bắt đầu khi mọi task trong cột đó đã "xong theo cột Xong khi". Cột **Chặn** cho biết ai đang chờ mình — trễ task có nhiều số ở cột này là trễ cả nhóm. Cột **CP** là checkpoint task phải xong (chi tiết từng checkpoint ở mục 5); task nào trải hai checkpoint thì phải *bắt đầu* ở CP đầu và *xong* ở CP sau.
 
 | ID | CP (giờ) | Task | File / lệnh | Owner | Chặn bởi | Chặn | Xong khi |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | T0 | **CP0** `00:00–00:20` | Setup env + `.env` | `uv sync --python 3.11` | Cả nhóm | — | T1–T12 | `uv run python --version` = 3.11.x, import OK |
 | T1 | **CP0** `00:00–00:20` | Chốt contract (mục 3) | file plan này | Cả nhóm | T0 | T2–T12 | 4 owner đọc lại schema và không ai đề xuất đổi |
-| T2 | **CP1** `00:20–00:50` | Fetch + parse + load raw | `ingestion/crossref.py` | TV1 | T0, T1 | T3, T4, T10 | `data/raw/*.json` đọc lại được, `paper_id` không rỗng |
+| ✅ T2 | **CP1** `00:20–00:50` | Fetch + parse + load raw | `ingestion/crossref.py` | TV1 | T0, T1 | T3, T4, T10 | `data/raw/*.json` đọc lại được, `paper_id` không rỗng |
 | T3 | CP1 → **CP2** `00:20–01:20` | Clean dataframe | `ingestion/cleaning.py` | TV2 | T2 | T4, T5, T6, T9 | clean CSV/JSON đủ 10 cột, `paper_id` unique |
 | T4 | CP1 → **CP2** `00:20–01:20` | Test set | `evaluation/testset.py` | TV2 | T3 | T6, T7 | mọi `ground_truth_doc_ids` tồn tại trong clean data |
 | T5 | CP1 → **CP2** `00:20–01:20` | Quality + freshness | `observability/quality.py` | TV3 | T3 | T7, T8, T11 | chạy được trên clean thật, ra JSON có kết quả pass/fail |
-| T6 | CP1 → **CP2** `00:20–01:20` | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
-| T7 | **CP3** `01:20–02:00` | Baseline pipeline | `pipelines/phase1.py` | TV4 | T2, T3, T4, T5, T6 | T8, T9, T11 | `run_phase1.py` sinh đủ artifact ở CP3 |
+| 🟡 T6 | CP1 → **CP2** `00:20–01:20` | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
+| 🟡 T7 | **CP3** `01:20–02:00` | Baseline pipeline | `pipelines/phase1.py` | TV4 | T2, T3, T4, T5, T6 | T8, T9, T11 | `run_phase1.py` sinh đủ artifact ở CP3 |
 | T8 | CP2 → **CP3** `00:50–02:00` | Baseline report | `observability/reporting.py::generate_phase1_report` | TV3 | T5, T7 | T12 | mọi số trong `phase1_report.md` khớp JSON |
 | T9 | **CP4** `02:15–02:55` | Corruption + log | `ingestion/corruption.py` | TV2 | T3, T7 | T10, T11 | `corruption_log.json` ghi rõ loại lỗi, record, trước/sau |
 | T10 | **CP4** `02:15–02:55` | Repair từ raw | trong `corruption_flow.py` | TV2 + TV1 | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
-| T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
+| 🟡 T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
 | T12 | CP4 → **CP5** `02:15–03:25` | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
 | T13 | **CP6** `03:25–04:00` | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
 | T14 | **CP6** `03:25–04:00` | Review rubric + demo | — | Cả nhóm | T13 | — | chạy lại 2 entrypoint sạch, `git status` gọn |
@@ -191,6 +193,27 @@ flowchart LR
 **Đường găng (critical path):** `T0 → T1 → T2 → T3 → T4 → T6 → T7 → T9 → T11 → T12 → T13`. Mọi task ngoài chuỗi này (T5, T8, T10) có slack — nếu trễ đường găng thì dừng việc khác để gỡ.
 
 **Việc chạy song song được ngay từ đầu:** TV3 làm T5 trên sample dataframe tự tạo; TV4 tải model MiniLM và smoke-test `retrieval/` trong lúc chờ T3.
+
+## 4.1 Tiến độ (cập nhật lần cuối 06/08)
+
+**Blocker hiện tại của cả nhóm: T3 `build_clean_dataframe` (TV2 Hân).** Chạy `script/run_phase1.py` hiện dừng ở `src/ingestion/cleaning.py:25`.
+
+| Task | Trạng thái | Bằng chứng |
+| --- | --- | --- |
+| T2 — raw ingestion (TV1) | ✅ **Xong**, đã merge vào `main` (PR #1) | 24 records; `paper_id` 0 rỗng / 0 trùng; title, summary, authors, `abs_url` đủ 24/24; `published` 2026-02-12 → 2026-08-01. Có thêm `tests/test_crossref.py` |
+| T6, T7 — index wiring + baseline pipeline (TV4) | 🟡 **Code xong, import sạch**, chờ T3 để chạy thật | `pipelines/phase1.py` chạy qua `[1/7] raw records: 24` rồi dừng đúng ở `cleaning.py` |
+| T11 — corruption flow (TV4) | 🟡 **Code xong**, chờ T7 chạy được | `pipelines/corruption_flow.py` chặn sớm nếu thiếu artifact baseline |
+| T3, T4 (TV2) · T5, T8, T12 (TV3) · T9, T10 | ⬜ Chưa bắt đầu | — |
+
+**Môi trường TV4 đã sẵn sàng:** `.venv` Python 3.11.9, `.env` có key, model MiniLM đã cache (384 chiều).
+
+### Phát hiện từ dữ liệu thật — ảnh hưởng T3 và T4
+
+`categories` **rỗng ở 24/24 record** — Crossref không trả trường `subject` cho các DOI trong tập này. Hệ quả và cách xử lý đã chốt:
+
+- `categories_joined` sẽ rỗng toàn bộ → **quality check không được đặt điều kiện fail trên cột này** (nếu không thì baseline sạch cũng fail, làm hỏng ý nghĩa so sánh).
+- `build_test_set` (T4) **bỏ loại câu hỏi `categories`**, chỉ dùng 3 loại: summary, authors, date.
+- Ghi lý do vào `group_report.md`: đây là giới hạn của nguồn dữ liệu, không phải lỗi implementation.
 
 ## 5. Timeline 4 giờ
 
