@@ -10,12 +10,14 @@ Vai trò chia theo ba khối của pipeline RAG: **DATA** (đưa dữ liệu và
 
 | Mã | Họ tên | MSSV | Khối | Vai trò | Nhánh |
 | --- | --- | --- | --- | --- | --- |
-| TV1 | Cao Các Tường | 2A202601236 | DATA | Nguồn & raw ingestion | `feat/data-source` |
-| TV2 | Lưu Nguyễn Ngọc Hân | 2A202601386 | DATA | Clean, test set & corruption | `feat/data-model` |
+| TV1 | Cao Các Tường | 2A202601236 | DATA | **Chuẩn bị từ raw**: ingestion + repair từ raw | `feat/data-source` |
+| TV2 | Lưu Nguyễn Ngọc Hân | 2A202601386 | DATA | **Biến đổi dữ liệu**: clean, test set & corruption | `feat/data-model` |
 | TV3 | Trần Quang Sáng | 2A202601446 | TỔNG HỢP | Quality, freshness & report | `feat/synthesis` |
 | TV4 | Nguyễn Xuân Quang | 2A202601776 | TRUY TÌM | Embedding/index, evaluation & tích hợp pipeline | `feat/retrieval-integration` |
 
-- **DATA (TV1 + TV2):** sở hữu mọi thứ trước khi dữ liệu vào vector store — raw snapshot, clean schema, test set, và cả bản corrupted/repaired vì đó cũng là biến đổi dữ liệu.
+- **DATA (TV1 + TV2):** sở hữu mọi thứ trước khi dữ liệu vào vector store. Chia theo *hướng của dữ liệu*, không chia theo file:
+  - **TV1 — đưa dữ liệu VÀO từ nguồn:** gọi Crossref, raw snapshot, `load_raw_records`, và **repair** (vì repair cũng chỉ là đọc lại từ raw). Một người nắm trọn đường `data/raw/` → repaired data.
+  - **TV2 — BIẾN ĐỔI dữ liệu đã có:** cleaning, test set, corruption. Một người nắm trọn các phép biến đổi trên dataframe.
 - **TRUY TÌM (TV4):** sở hữu mọi thứ giữa clean data và câu trả lời — embedding, ChromaDB collection, agent/QA, `evaluate_pipeline`; đồng thời là người ráp hai entrypoint, điều phối merge và **chủ trì tổng hợp `group_report.md`**.
 - **TỔNG HỢP (TV3):** sở hữu mọi thứ sau khi có số — quality checks, freshness, `phase1_report.md`, `corruption_report.md`; đóng góp phần số liệu/nhận xét cho `group_report.md` do TV4 chủ trì.
 
@@ -155,7 +157,9 @@ flowchart LR
 
 ## 4. Bảng công việc và quan hệ chặn
 
-Ký hiệu ở cột ID: ✅ đã xong và đã xác minh · 🟡 code viết xong nhưng chưa chạy được vì còn bị chặn · (trống) chưa bắt đầu. Xem chi tiết ở [mục 4.1](#41-tiến-độ-cập-nhật-lần-cuối-0608).
+Ký hiệu ở cột ID: ✅ đã xong và đã xác minh · 🟡 code viết xong nhưng chưa chạy được vì còn bị chặn · (trống) chưa bắt đầu. Xem chi tiết ở [mục 4.1](#41-tiến-độ-cập-nhật-lần-cuối-0608) và nhật ký đầy đủ ở [CHANGELOG.md](CHANGELOG.md).
+
+**Điều chỉnh giữa buổi — gom "chuẩn bị từ raw" về một người:** T10 trước ghi owner là `TV2 + TV1`, nay **chuyển hẳn cho TV1**. Lý do: cả luồng raw (`data/raw/` → `load_raw_records` → repaired data) nằm trong tay một người thì không phải bàn giao giữa buổi; TV2 chỉ còn tập trung vào T9 corruption — vốn là task tinh vi nhất còn lại. Chia đôi một task 40 phút cho hai người tốn nhiều thời gian đồng bộ hơn là tự làm.
 
 Đọc theo cột **Chặn bởi**: task chỉ được bắt đầu khi mọi task trong cột đó đã "xong theo cột Xong khi". Cột **Chặn** cho biết ai đang chờ mình — trễ task có nhiều số ở cột này là trễ cả nhóm. Cột **CP** là checkpoint task phải xong (chi tiết từng checkpoint ở mục 5); task nào trải hai checkpoint thì phải *bắt đầu* ở CP đầu và *xong* ở CP sau.
 
@@ -164,14 +168,14 @@ Ký hiệu ở cột ID: ✅ đã xong và đã xác minh · 🟡 code viết xo
 | T0 | **CP0** `00:00–00:20` | Setup env + `.env` | `uv sync --python 3.11` | Cả nhóm | — | T1–T12 | `uv run python --version` = 3.11.x, import OK |
 | T1 | **CP0** `00:00–00:20` | Chốt contract (mục 3) | file plan này | Cả nhóm | T0 | T2–T12 | 4 owner đọc lại schema và không ai đề xuất đổi |
 | ✅ T2 | **CP1** `00:20–00:50` | Fetch + parse + load raw | `ingestion/crossref.py` | TV1 | T0, T1 | T3, T4, T10 | `data/raw/*.json` đọc lại được, `paper_id` không rỗng |
-| T3 | CP1 → **CP2** `00:20–01:20` | Clean dataframe | `ingestion/cleaning.py` | TV2 | T2 | T4, T5, T6, T9 | clean CSV/JSON đủ 10 cột, `paper_id` unique |
-| T4 | CP1 → **CP2** `00:20–01:20` | Test set | `evaluation/testset.py` | TV2 | T3 | T6, T7 | mọi `ground_truth_doc_ids` tồn tại trong clean data |
+| ✅ T3 | CP1 → **CP2** `00:20–01:20` | Clean dataframe | `ingestion/cleaning.py` | TV2 | T2 | T4, T5, T6, T9 | clean CSV/JSON đủ 10 cột, `paper_id` unique |
+| ✅ T4 | CP1 → **CP2** `00:20–01:20` | Test set | `evaluation/testset.py` | TV2 | T3 | T6, T7 | mọi `ground_truth_doc_ids` tồn tại trong clean data |
 | T5 | CP1 → **CP2** `00:20–01:20` | Quality + freshness | `observability/quality.py` | TV3 | T3 | T7, T8, T11 | chạy được trên clean thật, ra JSON có kết quả pass/fail |
-| 🟡 T6 | CP1 → **CP2** `00:20–01:20` | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
+| ✅ T6 | CP1 → **CP2** `00:20–01:20` | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
 | 🟡 T7 | **CP3** `01:20–02:00` | Baseline pipeline | `pipelines/phase1.py` | TV4 | T2, T3, T4, T5, T6 | T8, T9, T11 | `run_phase1.py` sinh đủ artifact ở CP3 |
 | T8 | CP2 → **CP3** `00:50–02:00` | Baseline report | `observability/reporting.py::generate_phase1_report` | TV3 | T5, T7 | T12 | mọi số trong `phase1_report.md` khớp JSON |
 | T9 | **CP4** `02:15–02:55` | Corruption + log | `ingestion/corruption.py` | TV2 | T3, T7 | T10, T11 | `corruption_log.json` ghi rõ loại lỗi, record, trước/sau |
-| T10 | **CP4** `02:15–02:55` | Repair từ raw | trong `corruption_flow.py` | TV2 + TV1 | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
+| T10 | **CP4** `02:15–02:55` | Repair từ raw (xác minh lineage) | `data/clean/papers_clean_repaired.*` | **TV1** (đổi từ TV2+TV1) | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
 | 🟡 T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
 | T12 | CP4 → **CP5** `02:15–03:25` | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
 | T13 | **CP6** `03:25–04:00` | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
@@ -278,8 +282,8 @@ Ghi baseline checklist + blocker trước khi nghỉ. Nếu baseline chưa xong:
 
 ### CP4 — `02:15–02:55`: Corruption + repair
 
-- **TV2 (T9, T10):** implement `corrupt_clean_dataframe` (xóa record mới nhất, blank summary, noise, truncate title, stale date, duplicate rows); re-run cleaning từ raw để tạo repaired data.
-- **TV1 (T10):** xác minh raw snapshot không đổi, repaired có lineage từ raw.
+- **TV2 (T9):** implement `corrupt_clean_dataframe` (xóa record mới nhất, blank summary, noise, truncate title, stale date, duplicate rows) + `corruption_log.json`. Chỉ lo phần biến đổi, không lo repair.
+- **TV1 (T10, sở hữu trọn):** xác minh raw snapshot không đổi sau corruption; kiểm repaired data có lineage từ raw (so `paper_id` set giữa raw / baseline / repaired) và **không** phải bản copy của baseline. Code repair đã có sẵn trong `corruption_flow.py`, việc của TV1 là **xác minh và giải thích**, không phải viết lại.
 - **TV4 (T11):** ráp `corruption_flow.py`: corrupted → embed → eval → repaired → embed → eval, dùng collection riêng.
 - **TV3 (T12):** chạy cùng bộ quality/freshness cho corrupted và repaired; dựng comparison report.
 

@@ -137,3 +137,14 @@ Metrics baseline (`data/results/baseline_metrics.json`):
 - `.env` đã có credential provider.
 - Model `all-MiniLM-L6-v2` đã cache, verify vector **384 chiều** ⇒ buổi chiều không mất vài phút chờ tải.
 - Cảnh báo vô hại: HuggingFace cache không dùng symlink trên Windows, chỉ tốn thêm dung lượng đĩa.
+
+### `16:2x` — 📄 Gom "chuẩn bị từ raw" về một người · TV4 quyết định
+
+Điều chỉnh phân việc giữa buổi để giảm phụ thuộc chéo trong khối DATA:
+
+- **T10 "Repair từ raw": `TV2 + TV1` → chỉ `TV1`.** Trước đây hai người cùng sở hữu một task 40 phút, phải bàn giao giữa CP4 — tốn thời gian đồng bộ hơn là tự làm.
+- Khối DATA nay chia theo **hướng của dữ liệu**, không chia theo file:
+  - **TV1 — đưa dữ liệu VÀO:** Crossref, raw snapshot, `load_raw_records`, và repair (repair cũng chỉ là đọc lại từ raw). Một người nắm trọn đường `data/raw/` → repaired data.
+  - **TV2 — BIẾN ĐỔI dữ liệu đã có:** cleaning, test set, corruption. Một người nắm trọn các phép biến đổi trên dataframe.
+- Ghi rõ trong plan: code repair **đã có sẵn** trong `corruption_flow.py` (T11). Việc của TV1 ở T10 là **xác minh lineage và giải thích**, không phải viết lại code — so `paper_id` set giữa raw / baseline / repaired để chứng minh repaired không phải bản copy của baseline.
+- Cập nhật trạng thái bảng công việc: ✅ T3, T4 (TV2), ✅ T6 (TV4).
