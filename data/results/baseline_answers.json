@@ -112,7 +112,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer is identical to the reference answer, accurately summarizing the key challenge in diagnosing jawbone lesions."
+      "reasoning": "The model answer is identical to the reference answer, accurately summarizing the key points of the paper."
     }
   },
   {
@@ -257,7 +257,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer matches the reference answer exactly, indicating it is materially correct."
+      "reasoning": "The model answer matches the reference answer exactly, providing the correct publication date."
     }
   },
   {
@@ -344,7 +344,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer matches the reference answer exactly, indicating that it is materially correct."
+      "reasoning": "The model answer matches the reference answer exactly, providing the correct publication date."
     }
   },
   {
@@ -547,7 +547,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer is identical to the reference answer, accurately summarizing the key points of the paper's abstract."
+      "reasoning": "The model answer is identical to the reference answer, accurately summarizing the key points of the paper."
     }
   },
   {
@@ -663,7 +663,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors as requested in the question. Instead, it discusses the evolution of AI systems, which is irrelevant to identifying the authors of the specified paper."
+      "reasoning": "The model answer does not provide the names of the authors as requested in the question. Instead, it discusses the evolution of AI systems, which is irrelevant to the question."
     }
   },
   {
@@ -808,7 +808,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer is identical to the reference answer, accurately summarizing the paper's focus on risk reduction in the use of LLM in the dairy industry's economic security using the RAG approach."
+      "reasoning": "The model answer is identical to the reference answer, accurately summarizing the paper's focus on risk reduction in the use of LLM in the dairy industry using the RAG approach."
     }
   },
   {
@@ -837,7 +837,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors as requested in the question. Instead, it summarizes the content of the paper without addressing the specific question about authorship."
+      "reasoning": "The model answer does not provide the names of the authors as requested in the question. Instead, it summarizes the content of the paper without addressing the specific query about the authors."
     }
   },
   {
@@ -924,7 +924,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors, which is the specific information requested in the question. Instead, it offers an abstract that is unrelated to the authorship."
+      "reasoning": "The model answer does not provide the names of the authors as requested in the question. Instead, it presents an abstract that is unrelated to the authorship."
     }
   },
   {
@@ -1127,7 +1127,7 @@
     "judge": {
       "score": 5,
       "correct": true,
-      "reasoning": "The model answer matches the reference answer exactly, providing the correct publication date."
+      "reasoning": "The model answer matches the reference answer exactly, indicating that it is materially correct."
     }
   },
   {
@@ -1243,7 +1243,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide any summary or content related to the paper; it merely repeats the words 'Abstract Background' without elaboration or relevant information."
+      "reasoning": "The model answer does not provide any summary or content related to the paper; it merely repeats the terms 'Abstract' and 'Background' without elaboration."
     }
   },
   {
@@ -1272,7 +1272,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the name of the author, which is the key information requested in the question. Instead, it only states 'Abstract Background,' which is irrelevant to the question."
+      "reasoning": "The model answer does not provide the name of the author(s) and instead includes irrelevant text ('Abstract Background'). The reference answer correctly identifies the author as Amos Mbeki Nyagar."
     }
   },
   {
@@ -1620,7 +1620,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors as requested in the question. It instead describes the study's focus, which is irrelevant to the question asked."
+      "reasoning": "The model answer does not provide the names of the authors as requested in the question. It instead describes the study's focus without addressing the specific authors."
     }
   },
   {
@@ -1707,7 +1707,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors of the paper, which is the specific information requested in the question. Instead, it discusses the performance of LLMs in biomedical question-answering, which is irrelevant to the question."
+      "reasoning": "The model answer does not provide the names of the authors of the paper, which is the specific information requested in the question. Instead, it discusses the performance of LLMs in biomedical question-answering, which is irrelevant to the question asked."
     }
   },
   {
@@ -1794,7 +1794,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors of the paper, which is the specific information requested in the question. Instead, it discusses the concept of Retrieval-Augmented Generation without addressing the authors."
+      "reasoning": "The model answer does not provide the name of the author, Lihui Liu, as requested in the question. Instead, it discusses the concept of Retrieval-Augmented Generation, which is unrelated to identifying the authors of the paper."
     }
   },
   {
@@ -1852,7 +1852,7 @@
     "judge": {
       "score": 2,
       "correct": false,
-      "reasoning": "The model answer provides a general overview of the study's focus on integrating retrieval-augmented mechanisms into language models but fails to address the specific issues with existing GraphRAG methods and their limitations in capturing semantic relevance and multi-hop reasoning, as highlighted in the reference answer."
+      "reasoning": "The model answer provides a general overview of the study's focus on integrating retrieval-augmented mechanisms into language models, but it fails to address the specific issues with existing GraphRAG methods and the limitations they face, as highlighted in the reference answer. Therefore, it does not accurately summarize the key points of the paper."
     }
   },
   {
@@ -1910,7 +1910,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer provides a date (2026-06-30) that is incorrect compared to the reference answer (2026-02-26). The model answer is significantly later than the reference date."
+      "reasoning": "The model answer provides a date (2026-06-30) that is incorrect compared to the reference answer (2026-02-26). The model answer is not materially correct."
     }
   },
   {
@@ -1968,7 +1968,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors as requested in the question. It instead discusses the potential of large language models, which is irrelevant to the question."
+      "reasoning": "The model answer does not provide the names of the authors as requested in the question. It instead discusses the potential of large language models, which is irrelevant to the question asked."
     }
   },
   {
@@ -2055,7 +2055,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not provide the names of the authors as requested in the question. Instead, it discusses the performance of large language models in biomedical contexts, which is irrelevant to the question."
+      "reasoning": "Fallback heuristic judge used because the LLM evaluator was unavailable."
     }
   },
   {
@@ -2082,9 +2082,9 @@
     "retrieval_hit": true,
     "token_f1": 0.0,
     "judge": {
-      "score": 2,
+      "score": 1,
       "correct": false,
-      "reasoning": "The model answer provides a date that is incorrect; the reference answer states the correct publication date as 2026-02-12, while the model answer states 2026-03-15."
+      "reasoning": "Fallback heuristic judge used because the LLM evaluator was unavailable."
     }
   },
   {
@@ -2111,9 +2111,9 @@
     "retrieval_hit": true,
     "token_f1": 0.16216216216216217,
     "judge": {
-      "score": 2,
+      "score": 1,
       "correct": false,
-      "reasoning": "The model answer does not directly provide the title of the paper as requested. Instead, it offers a summary related to the topic, which is not what was asked for."
+      "reasoning": "Fallback heuristic judge used because the LLM evaluator was unavailable."
     }
   }
 ]

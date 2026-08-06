@@ -148,3 +148,43 @@ Metrics baseline (`data/results/baseline_metrics.json`):
   - **TV2 — BIẾN ĐỔI dữ liệu đã có:** cleaning, test set, corruption. Một người nắm trọn các phép biến đổi trên dataframe.
 - Ghi rõ trong plan: code repair **đã có sẵn** trong `corruption_flow.py` (T11). Việc của TV1 ở T10 là **xác minh lineage và giải thích**, không phải viết lại code — so `paper_id` set giữa raw / baseline / repaired để chứng minh repaired không phải bản copy của baseline.
 - Cập nhật trạng thái bảng công việc: ✅ T3, T4 (TV2), ✅ T6 (TV4).
+
+### `16:4x` — ✅ 📥 **T5 + T8** quality, freshness & baseline report · TV3 Sáng · `b7eca25`, `d0b1875`
+
+- `quality.py` (+127) và `reporting.py` (+101), kèm `data/quality/quality_baseline.json` + `freshness_report.json`.
+- **Baseline chạy hết 7/7 bước lần đầu** — `data/reports/phase1_report.md` đã sinh, mọi số khớp JSON.
+- Quality baseline `overall_pass: true`, 7 check đều pass: `required_columns`, `row_count` (24), `paper_id_not_null` (0), `paper_id_unique` (0 trùng), `title_not_blank` (0), `summary_length` (826–2610 ký tự), `freshness` (0 stale).
+- Sáng đã xử lý đúng vấn đề `categories`: đánh dấu `categories_are_optional: true`, **không** đặt điều kiện fail trên cột rỗng ⇒ baseline sạch không bị fail oan.
+- Freshness: `latest_published` 2026-08-01, `oldest` 2026-02-12, `stale_rows` 0, `is_fresh` true.
+
+**Sự cố khi chạy (đã xử lý):** lần chạy đầu crash ở `huggingface_hub` — `RuntimeError: Cannot send a request, as the client has been closed`. HF cố kiểm tra bản mới của model qua mạng dù đã cache. Khắc phục: chạy với `HF_HUB_OFFLINE=1`. Ghi lại vì máy khác có thể gặp lại.
+
+**Agent demo lỗi 402 (không chặn pipeline):** OpenRouter báo hết credit (`max_tokens` 16384 > số dư 16084). `run_agent_demo` đã bọc try/except nên pipeline vẫn chạy xong; `agent_demo_answers.json` chỉ ghi lỗi. **Ảnh hưởng rubric Mục 5 (Agent, 10 điểm)** — cần nạp credit hoặc đổi provider trước demo CP6.
+
+### `16:4x` — ✅ Tests + demo evidence (bonus) · TV4 (giao codex)
+
+- `tests/test_pipelines.py` — 11 test cho phần TV4, không gọi LLM/mạng/model: `load_or_fetch_records` không gọi API khi đã có snapshot, `require_baseline_artifacts` báo đúng artifact thiếu, `freshness_path_for` trả 3 path khác nhau, `ask.embeddings_path_for` map đúng 3 state, `match_test_sample` không phân biệt hoa thường.
+- **Xác minh:** `pytest tests/ -q` → **17 passed** (11 mới + 6 của Tường).
+- `report/demo_evidence.md` — phân tích 73 mẫu thật, bảng metric theo question_type, 2 ví dụ demo cho CP6.
+- Sửa `.gitignore`: dòng `data/chroma/` tôi thêm trước đó bị thiếu newline nên dính vào `CLAUDE.md` ⇒ chroma không được ignore. Đã sửa.
+
+### `16:4x` — 🔴 **PHÁT HIỆN: 24/24 câu hỏi `authors` fail hệ thống** · cần TV2 sửa T4
+
+Từ `demo_evidence.md`: loại câu hỏi `authors` có **token F1 = 0.000 và judge score = 1.000 ở cả 24 câu**, không câu nào correct.
+
+**Nguyên nhân:** test set (T4) đặt câu hỏi dạng `"Who are the authors of the paper titled ..."`, nhưng `src/retrieval/qa.py::_extract_answer` (starter code, không được sửa) chỉ nhận diện:
+
+```python
+if "who authored" in lowered or "list the authors" in lowered:
+    return metadata["authors_joined"]
+```
+
+Câu hỏi không khớp chuỗi nào ⇒ rơi vào nhánh mặc định `first_sentence(summary)` ⇒ trả về tóm tắt thay vì danh sách tác giả.
+
+| | Hiện tại | Nếu sửa |
+| --- | --- | --- |
+| `judge_accuracy` | 43/73 = **0.589** | 67/73 = **0.918** |
+
+**Cách sửa (thuộc T4, file `src/evaluation/testset.py` của TV2):** đổi mẫu câu thành `"Who authored the paper titled ..."`. Sửa một chuỗi.
+
+**Phải sửa TRƯỚC khi chạy T9 corruption** — sau đó test set bị khóa cho cả 3 trạng thái, không đổi được nữa mà không phải chạy lại baseline.
