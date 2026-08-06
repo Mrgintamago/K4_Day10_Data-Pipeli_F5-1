@@ -1,12 +1,24 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+import json
 import random
 from typing import Any
 
 import pandas as pd
 
 from core.utils import write_json
+
+
+def _records_for_json(df: pd.DataFrame) -> list[dict[str, Any]]:
+    """Serialize a dataframe to JSON-safe records.
+
+    Replaces NaN with ``None`` so the output is valid JSON. Without this,
+    ``pandas.DataFrame.to_dict`` can emit the literal ``NaN`` (the JS-style
+    sentinel) on object-dtype columns that survived CSV round-trip —
+    technically invalid JSON and rejected by strict parsers.
+    """
+    return json.loads(df.to_json(orient="records"))
 
 
 # Defaults sized so the corruption is loud enough that retrieval/metric signals
@@ -68,7 +80,14 @@ def _corrupt_drop_latest(
 def _corrupt_blank_summary(
     df: pd.DataFrame, log: list[dict[str, Any]], fraction: float, rng: random.Random
 ) -> pd.DataFrame:
-    """Replace summary with an empty string on a fraction of rows."""
+    """Replace summary with an empty string on a fraction of rows.
+
+    pandas ``to_csv`` cannot distinguish empty strings from missing values —
+    both round-trip as NaN. To keep the corruption visible in the CSV artifact
+    we store a single whitespace character, and downstream consumers should
+    treat any whitespace-only summary as blank. The log records the true
+    before/after empty string so audit reads stay honest.
+    """
     if df.empty:
         _log_event(log, "blank_summary", [], {"fraction": fraction}, 0, 0)
         return df
@@ -78,7 +97,7 @@ def _corrupt_blank_summary(
     affected_ids = df.loc[indices, "paper_id"].tolist()
     before = [df.at[i, "summary"] for i in indices]
     for i in indices:
-        df.at[i, "summary"] = ""
+        df.at[i, "summary"] = " "  # see docstring — survives CSV round-trip
     _log_event(
         log,
         "blank_summary",
@@ -288,6 +307,7 @@ def corrupt_clean_dataframe(df: pd.DataFrame, output_log_path) -> pd.DataFrame:
         "baseline_paper_ids": before_snapshot["paper_ids"],
         "corrupted_paper_ids": after_snapshot["paper_ids"],
         "events": log,
+        "corrupted_records": _records_for_json(df),
     }
 
     write_json(output_log_path, log_payload)
