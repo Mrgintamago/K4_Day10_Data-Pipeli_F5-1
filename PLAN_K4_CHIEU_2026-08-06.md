@@ -153,7 +153,7 @@ flowchart LR
 - **So sánh công bằng:** ba trạng thái dùng chung `data/eval/test_set.json`, `top_k=4`, cùng evaluator và cùng model.
 - **Tách trạng thái:** collection `papers-baseline` / `papers-corrupted` / `papers-repaired`, embeddings manifest riêng; không ghi đè baseline.
 - **Repair:** chạy lại cleaning từ raw records; cấm sửa tay metrics hoặc copy clean baseline để giả lập recovery.
-- **Bảo mật:** `.env` chỉ tồn tại cục bộ, không vào Git/report/log/ảnh demo.
+- **Bảo mật:** `.env` chỉ tồn tại cục bộ, không vào Git/report/log.
 
 ## 4. Bảng công việc và quan hệ chặn
 
@@ -179,7 +179,7 @@ Ký hiệu ở cột ID: ✅ đã xong và đã xác minh · 🟡 code viết xo
 | ✅ T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
 | ✅ T12 | CP4 → **CP5** `02:15–03:25` | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
 | 🟡 T13 | **CP6** `03:25–04:00` | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
-| T14 | **CP6** `03:25–04:00` | Review rubric + demo | — | Cả nhóm | T13 | — | chạy lại 2 entrypoint sạch, `git status` gọn |
+| T14 | **CP6** `03:25–04:00` | Review rubric | — | Cả nhóm | T13 | — | chạy lại 2 entrypoint sạch, `git status` gọn |
 
 **Mốc chốt cứng theo checkpoint** — đến giờ mà chưa qua thì cắt phạm vi, không kéo dài:
 
@@ -337,14 +337,13 @@ uv run python script/run_corruption_flow.py
 - `data/reports/corruption_report.md` có baseline / corrupted / repaired / delta; không kết luận recovery nếu số không chứng minh.
 - Chỉ ra được 1 chuỗi bằng chứng: data change → quality signal → retrieval/answer metric.
 
-### CP6 — `03:25–04:00`: Báo cáo, review, demo
+### CP6 — `03:25–04:00`: Báo cáo và review
 
 - TV4 chủ trì đối chiếu `report/group_report.md` với artifact thật (TV3 cấp số liệu quality/freshness và 2 report kỹ thuật).
 - Mỗi người viết `report/<MSSV>_HoTen.md`: phần mình làm và cách tự xác minh.
 - TV4 chạy lại 2 entrypoint trên bản nộp + kiểm `git status`.
 - Cả nhóm soi `Rubric.md`: không `.env`/secret, không hard-code path, report khớp artifact.
-- Demo theo luồng: raw → clean → baseline → corruption → quality signal đổi → repair → comparison.
-- **CLI hỏi–đáp (bonus, đã có sẵn):** `uv run python script/ask.py "<câu hỏi>"` — in câu trả lời, top-k `paper_id` + score, và HIT/MISS nếu câu hỏi nằm trong test set. Thêm `--state corrupted` / `--state repaired` để demo trực tiếp cùng một câu hỏi trên ba trạng thái dữ liệu; đây là cách cho người chấm thấy tác động của corruption trong 30 giây mà không cần đọc JSON.
+- **CLI hỏi–đáp (bonus, đã có sẵn):** `uv run python script/ask.py "<câu hỏi>"` — in câu trả lời, top-k `paper_id` + score, và HIT/MISS nếu câu hỏi nằm trong test set. `--state corrupted` / `--state repaired` cho phép hỏi cùng một câu trên ba trạng thái dữ liệu để đối chiếu bằng chứng.
 
 ## 6. Quy tắc phối hợp
 
@@ -352,7 +351,7 @@ uv run python script/run_corruption_flow.py
 - Handoff bằng commit nhỏ tại `00:50`, `01:20`, `02:55`; TV4 merge vào nhánh tích hợp.
 - Không sửa file của owner khác khi chưa báo; hotfix phải ghi lý do và để owner review.
 - Blocker quá 10 phút → báo TV4 kèm command + traceback + giả thuyết đã thử.
-- Thiếu giờ thì ưu tiên: baseline → corruption/repair comparison → report bắt buộc → demo; Ragas/bonus cuối cùng.
+- Thiếu giờ thì ưu tiên: baseline → corruption/repair comparison → report bắt buộc; Ragas/bonus cuối cùng.
 - Không refresh Crossref hoặc test set giữa 3 lần evaluate (`REFRESH_SOURCE`, `REFRESH_TEST_SET` giữ nguyên tắt).
 
 ## 7. Checklist cuối buổi

@@ -47,11 +47,17 @@ def sanitize_missing(df: pd.DataFrame) -> pd.DataFrame:
     - Chroma metadata -> `qa.py::_extract_answer` goi `first_sentence(NaN)`
       va crash TypeError.
     Chuan hoa mot lan tai tang dieu phoi, khong sua logic cua owner khac.
+
+    Luu y: khong loc theo dtype. Cot text rong TOAN BO (vi du `categories_joined`)
+    duoc `read_csv` gan dtype float64, nen dieu kien `dtype == object` se bo sot
+    dung nhung cot hay sinh NaN nhat. Chi giu nguyen cot so thuc su.
     """
+    numeric_columns = {"age_days", "summary_chars"}
     cleaned = df.copy()
     for column in cleaned.columns:
-        if cleaned[column].dtype == object:
-            cleaned[column] = cleaned[column].fillna("")
+        if column in numeric_columns or not cleaned[column].isna().any():
+            continue
+        cleaned[column] = cleaned[column].astype(object).where(cleaned[column].notna(), "")
     return cleaned
 
 
