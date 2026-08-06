@@ -30,7 +30,9 @@ Ký hiệu: ✅ xong & đã xác minh · 🟡 code xong, chờ blocker · ⬜ ch
 
 **Pha 1 XONG.** `script/run_phase1.py` chạy hết 7/7 bước, đủ artifact. Blocker còn lại: **T9 corruption** (TV2 Hân) — chặn T11, T12, T13.
 
-🔴 **Cần sửa gấp trước T9:** 24/24 câu hỏi loại `authors` fail hệ thống do test set không khớp matcher trong `qa.py` — xem mục cuối nhật ký. Sửa xong `judge_accuracy` lên 0.589 → 0.918.
+✅ **Đã sửa lỗi 24/24 câu `authors`** — `judge_accuracy` 0.589 → **0.918** (judge thật, 0/73 fallback), `token_f1` 0.619 → **0.921**. LLM provider đổi sang `deepseek-v4-pro`.
+
+🔒 **Test set đã KHÓA** từ đây — `data/eval/test_set.json` không được sinh lại nữa, nếu không 3 trạng thái mất khả năng so sánh.
 
 ---
 
