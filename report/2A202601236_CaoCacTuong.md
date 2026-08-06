@@ -7,7 +7,7 @@
 | Họ và tên | Cao Các Tường |
 | MSSV | 2A202601236 |
 | Khóa/Lớp | K4 |
-| Tên nhóm | K4 chiều 06/08/2026 |
+| Tên nhóm | F5-1 |
 | Vai trò chính | DATA - nguồn dữ liệu, raw ingestion và repair từ raw (T2, T10) |
 | Repository | `K4_Day10_Data-Pipeli_F5-1` |
 | Ngày hoàn thành | 2026-08-06 |
