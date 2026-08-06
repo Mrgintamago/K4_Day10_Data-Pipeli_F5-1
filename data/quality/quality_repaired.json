@@ -1,0 +1,43 @@
+{
+  "report_name": "repaired",
+  "total_rows": 24,
+  "overall_pass": true,
+  "checks": {
+    "required_columns": {
+      "pass": true,
+      "missing": []
+    },
+    "row_count": {
+      "pass": true,
+      "value": 24
+    },
+    "paper_id_not_null": {
+      "pass": true,
+      "null_rows": 0
+    },
+    "paper_id_unique": {
+      "pass": true,
+      "duplicate_rows": 0
+    },
+    "title_not_blank": {
+      "pass": true,
+      "blank_rows": 0
+    },
+    "summary_length": {
+      "pass": true,
+      "blank_rows": 0,
+      "min_chars": 826,
+      "max_chars": 2610
+    },
+    "freshness": {
+      "pass": true,
+      "stale_rows": 0,
+      "invalid_or_missing_age_rows": 0,
+      "threshold_days": 180
+    }
+  },
+  "summary": {
+    "failed_checks": [],
+    "categories_are_optional": true
+  }
+}

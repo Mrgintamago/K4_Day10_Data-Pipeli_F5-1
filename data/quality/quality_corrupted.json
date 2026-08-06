@@ -1,0 +1,47 @@
+{
+  "report_name": "corrupted",
+  "total_rows": 22,
+  "overall_pass": false,
+  "checks": {
+    "required_columns": {
+      "pass": true,
+      "missing": []
+    },
+    "row_count": {
+      "pass": true,
+      "value": 22
+    },
+    "paper_id_not_null": {
+      "pass": true,
+      "null_rows": 0
+    },
+    "paper_id_unique": {
+      "pass": false,
+      "duplicate_rows": 3
+    },
+    "title_not_blank": {
+      "pass": true,
+      "blank_rows": 0
+    },
+    "summary_length": {
+      "pass": false,
+      "blank_rows": 3,
+      "min_chars": 0,
+      "max_chars": 2610
+    },
+    "freshness": {
+      "pass": false,
+      "stale_rows": 22,
+      "invalid_or_missing_age_rows": 0,
+      "threshold_days": 180
+    }
+  },
+  "summary": {
+    "failed_checks": [
+      "paper_id_unique",
+      "summary_length",
+      "freshness"
+    ],
+    "categories_are_optional": true
+  }
+}

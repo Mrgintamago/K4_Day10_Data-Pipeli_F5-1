@@ -1,0 +1,9 @@
+{
+  "latest_published": "2021-07-02",
+  "oldest_published": "2021-02-13",
+  "stale_rows": 22,
+  "invalid_date_rows": 0,
+  "total_rows": 22,
+  "threshold_days": 180,
+  "is_fresh": false
+}
