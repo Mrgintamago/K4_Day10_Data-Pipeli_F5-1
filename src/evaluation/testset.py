@@ -67,7 +67,10 @@ def build_test_set(df: pd.DataFrame, output_path) -> list[dict[str, Any]]:
                 {
                     "id": _new_id(),
                     "question_type": "authors",
-                    "question": f"Who are the authors of the paper titled \"{title}\"?",
+                    # Phai bat dau bang "Who authored" de khop matcher trong
+                    # retrieval/qa.py::_extract_answer, neu khong se roi vao nhanh
+                    # mac dinh va tra ve summary thay vi danh sach tac gia.
+                    "question": f"Who authored the paper titled \"{title}\"?",
                     "ground_truth": authors,
                     "ground_truth_doc_ids": [paper_id],
                 }

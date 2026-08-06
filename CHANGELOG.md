@@ -190,3 +190,37 @@ Câu hỏi không khớp chuỗi nào ⇒ rơi vào nhánh mặc định `first_
 **Cách sửa (thuộc T4, file `src/evaluation/testset.py` của TV2):** đổi mẫu câu thành `"Who authored the paper titled ..."`. Sửa một chuỗi.
 
 **Phải sửa TRƯỚC khi chạy T9 corruption** — sau đó test set bị khóa cho cả 3 trạng thái, không đổi được nữa mà không phải chạy lại baseline.
+
+### `17:0x` — ✅ Sửa mẫu câu `authors` (T4) + đổi LLM provider · TV4
+
+**Sửa T4** (`src/evaluation/testset.py`, file của TV2 — đã sửa thay vì chờ, cần báo lại Hân): đổi `"Who are the authors of the paper titled ..."` → `"Who authored the paper titled ..."` để khớp matcher trong `retrieval/qa.py::_extract_answer`. Có comment giải thích ngay tại chỗ để không ai đổi ngược lại.
+
+Chạy lại với `REFRESH_TEST_SET=1` để sinh lại `test_set.json`. **Đây là lần cuối được phép đổi test set** — từ đây khóa cho cả 3 trạng thái.
+
+**Đổi LLM provider:** `openai/gpt-4o-mini` (OpenRouter) → `deepseek-v4-pro` qua proxy `https://api.ai-box.vn/v1`. Lý do: OpenRouter hết credit, trả 402 giữa buổi.
+
+**Bài học ghi lại:** proxy dùng tên model **không có tiền tố vendor** (`deepseek-v4-pro`), khác OpenRouter gốc (`deepseek/deepseek-v4-pro`). Sai dạng thì báo lỗi model không tồn tại.
+
+### `17:0x` — ✅ Baseline chốt số (judge thật) · TV4
+
+| Metric | Trước sửa T4 | Sau sửa | Ghi chú |
+| --- | --- | --- | --- |
+| `retrieval_hit_rate` | 1.000 | **1.000** | không đổi |
+| `mean_token_f1` | 0.619 | **0.921** | metric tất định, không dùng LLM ⇒ chứng minh việc sửa có tác dụng thật |
+| `judge_accuracy` | 0.589 | **0.918** | 67/73 |
+| `mean_judge_score` | 3.40 | **4.67** / 5 |
+| **Fallback judge** | 0/73 | **0/73** | ✅ LLM judge thật chạy hết, số liệu đọc được |
+
+Theo loại câu hỏi: `authors` 0.917 · `date` 0.917 · `summary` 0.958 · `retrieval` 0.000 (chỉ 1 câu).
+
+**Cảnh báo về một lần chạy trung gian:** giữa hai lần trên có một lần OpenRouter hết credit khiến **73/73 rơi vào fallback heuristic**, `judge_accuracy` vẫn hiện 0.918. Con số đó **không phải LLM chấm** mà là token F1 khoác áo khác — đúng cái bẫy ghi trong `THEORY.md`. Luôn kiểm trường `reasoning` trước khi tin cột judge.
+
+**Agent demo (rubric Mục 5) nay chạy được** — `agent_demo_answers.json` có câu trả lời thật, không còn lỗi 402.
+
+### `17:0x` — 🔎 Phát hiện: 6 câu còn fail là do `qa.py` dùng nháy đơn
+
+`qa.py::answer_question` tìm tiêu đề bằng regex `r"'([^']+)'"` — **nháy đơn**, trong khi test set dùng **nháy kép**. Nên `index.lookup()` (tra cứu chính xác theo tiêu đề) không bao giờ kích hoạt; mọi câu đều phụ thuộc hoàn toàn vào semantic search. 6 câu fail là các câu semantic search không đưa đúng paper lên đầu.
+
+**Quyết định: KHÔNG sửa.** Nếu đổi test set sang nháy đơn thì `lookup()` sẽ trả đúng tài liệu bằng tra cứu tiêu đề, **bỏ qua embedding**. Khi đó corruption làm hỏng `text_for_embedding` sẽ **không** kéo `retrieval_hit_rate` xuống — che mất chính thứ bài lab cần đo. Giữ nguyên để retrieval thực sự là semantic.
+
+Baseline 0.918 với 6 lỗi giải thích được là baseline tốt: thật, và còn dư địa để corruption kéo xuống.

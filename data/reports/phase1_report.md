@@ -13,7 +13,7 @@
 - **collection_name:** papers-baseline
 - **top_k:** 4
 - **llm_provider:** openrouter
-- **llm_model:** openai/gpt-4o-mini
+- **llm_model:** deepseek-v4-pro
 - **test_set_size:** 73
 - **test_set_mode:** loaded_existing
 
@@ -23,9 +23,9 @@
 |---|---|
 | `samples` | 73 |
 | `retrieval_hit_rate` | 1.0000 |
-| `mean_token_f1` | 0.6192 |
-| `judge_accuracy` | 0.5890 |
-| `mean_judge_score` | 3.3699 |
+| `mean_token_f1` | 0.9206 |
+| `judge_accuracy` | 0.9178 |
+| `mean_judge_score` | 4.6712 |
 | `ragas` | {'skipped': 'Set RUN_RAGAS=1 to enable the slower Ragas pass.'} |
 
 ## Data quality
