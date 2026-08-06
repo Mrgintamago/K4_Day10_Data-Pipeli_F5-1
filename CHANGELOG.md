@@ -288,3 +288,27 @@ Quality corrupted: `overall_pass: false`, 3 check fail. Quality repaired: `overa
 Pull về `phase1_report.md` + artifact từ lần chạy của Sáng.
 
 **Lưu ý provenance:** `baseline_answers.json` bản của Sáng có **fallback judge 73/73** (máy Sáng chưa có key ai-box). Bốn số tổng hợp vẫn khớp tuyệt đối với bản chạy judge thật — vì QA ở đây là *extractive*, `token_f1` phân bố nhị cực (67 câu = 1.0, 6 câu = 0.0) nên heuristic và LLM judge cho cùng kết luận. Đã chạy lại `run_phase1.py` bằng key ai-box để cả 3 bộ answers cùng dùng judge thật, tránh người chấm thấy `reasoning` lẫn lộn.
+
+### `19:1x` — ✅ Chốt số cuối · TV4
+
+Pull về T10 (Tường), Fix T9 + T12 (Hân, Sáng) rồi chạy lại cả hai pipeline trên code đã merge.
+
+**Sửa tiếp `sanitize_missing`:** bản đầu chỉ lọc `dtype == object` nên **bỏ sót đúng những cột hay sinh NaN nhất** — cột rỗng toàn bộ (`categories_joined`) được `read_csv` gán `float64`. Bỏ lọc theo dtype, chỉ trừ cột số thật (`age_days`, `summary_chars`). Sau sửa: parse toàn bộ `data/**/*.json` bằng parser nghiêm ngặt → **0 file lỗi**.
+
+Việc này làm số corrupted đổi nhẹ, vì trước đó chuỗi `"nan"` lọt vào `text_for_embedding` của bản corrupted.
+
+| Metric | Baseline | Corrupted | Repaired | Δ corrupt |
+| --- | ---: | ---: | ---: | ---: |
+| `retrieval_hit_rate` | 1.0000 | **0.7397** | 1.0000 | −0.2603 |
+| `mean_token_f1` | 0.9206 | **0.2620** | 0.9206 | −0.6586 |
+| `judge_accuracy` | 0.9178 | **0.2740** | 0.9178 | −0.6438 |
+| `mean_judge_score` | 4.6712 | **2.0959** | 4.6712 | −2.5753 |
+
+`repaired == baseline` chính xác. Fallback judge **0/73** cả ba bộ. Test suite **17 passed**.
+
+### `19:1x` — ✅ **T13** group report + báo cáo cá nhân · TV4
+
+- `report/group_report.md` — nhóm **F5-1**, 13 mục theo `report/README.md`, 0 placeholder, mọi số đối chiếu khớp artifact JSON.
+- `report/2A202601776_NguyenXuanQuang.md` — 10 mục, viết theo góc nhìn cá nhân để không trùng báo cáo nhóm.
+- Bỏ `DEMO.md` và mọi nội dung liên quan tới demo trong plan theo yêu cầu.
+- Còn thiếu: báo cáo cá nhân của Hân (Tường và Sáng đã push).

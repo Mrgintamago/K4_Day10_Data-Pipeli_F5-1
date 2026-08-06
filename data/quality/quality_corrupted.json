@@ -26,7 +26,7 @@
     "summary_length": {
       "pass": false,
       "blank_rows": 3,
-      "min_chars": 0,
+      "min_chars": 1,
       "max_chars": 2610
     },
     "freshness": {

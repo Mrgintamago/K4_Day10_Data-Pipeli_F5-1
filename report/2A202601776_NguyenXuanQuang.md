@@ -163,15 +163,15 @@ Bốn bằng chứng: `repaired.paper_id ⊆ raw.paper_id` (True); `repaired == 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét của cá nhân |
 | --- | ---: | ---: | ---: | --- |
 | `retrieval_hit_rate` | 1.0000 | **0.7397** | 1.0000 | Baseline đạt trần vì corpus 24 tài liệu mà `top_k=4`. Tôi không đọc đây là "retrieval hoàn hảo" mà là "corpus quá nhỏ để metric phân biệt tinh" — giá trị thật của nó là tạo trần để corruption có chỗ kéo xuống |
-| `mean_token_f1` | 0.9206 | **0.2686** | 0.9206 | Metric tôi tin nhất vì tất định, không phụ thuộc LLM. Chính nó chứng minh việc sửa lỗi `authors` có tác dụng thật (0.619 → 0.921) khi cột judge còn đang nghi ngờ |
-| `judge_accuracy` | 0.9178 | **0.2603** | 0.9178 | 67/73 → 19/73. Chỉ đọc được sau khi xác nhận fallback 0/73 |
-| `mean_judge_score` | 4.6712 | **2.0411** | 4.6712 | Phân bố nhị cực (5 hoặc 1) do QA extractive — hệ quả là judge không phân biệt được các mức đúng một phần |
+| `mean_token_f1` | 0.9206 | **0.2620** | 0.9206 | Metric tôi tin nhất vì tất định, không phụ thuộc LLM. Chính nó chứng minh việc sửa lỗi `authors` có tác dụng thật (0.619 → 0.921) khi cột judge còn đang nghi ngờ |
+| `judge_accuracy` | 0.9178 | **0.2740** | 0.9178 | 67/73 → 20/73. Chỉ đọc được sau khi xác nhận fallback 0/73 |
+| `mean_judge_score` | 4.6712 | **2.0959** | 4.6712 | Phân bố nhị cực (5 hoặc 1) do QA extractive — hệ quả là judge không phân biệt được các mức đúng một phần |
 | Quality checks | `true` | **`false`** | `true` | Corrupted fail 3 check: `paper_id_unique`, `summary_length`, `freshness` |
 | Freshness status | Fresh, 0 stale | **Stale, 22/22** | Fresh, 0 stale | `latest_published` 2026-08-01 → 2021-07-02 → 2026-08-01 |
 
 ### Kết luận từ số liệu
 
-**1. `blank_summary` (3 dòng) + `duplicate_rows` (3 dòng) → `summary_length` và `paper_id_unique` chuyển FAIL → `retrieval_hit_rate` −0.2603 và `mean_token_f1` −0.6519.**
+**1. `blank_summary` (3 dòng) + `duplicate_rows` (3 dòng) → `summary_length` và `paper_id_unique` chuyển FAIL → `retrieval_hit_rate` −0.2603 và `mean_token_f1` −0.6586.**
 Mắt xích quan trọng nằm ở bước dựng lại `text_for_embedding` sau khi corrupt: nếu chỉ sửa cột `summary` mà giữ nguyên cột này thì dữ liệu *trông* hỏng trong CSV nhưng vector đem đi index vẫn là vector cũ, và metric sẽ không đổi.
 
 **2. Repair chạy lại cleaning từ `crossref_records.json` → `overall_pass` về `true`, `is_fresh` về `true` với 0 dòng stale → cả bốn metric trở về đúng giá trị baseline, khớp tuyệt đối chứ không phải xấp xỉ.**

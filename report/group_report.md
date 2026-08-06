@@ -26,7 +26,7 @@ Nhóm hoàn thành **toàn bộ 12 hàm `TODO(student)`** và chạy sạch cả
 
 Baseline sinh đủ artifact: raw snapshot + raw records (24 bản ghi Crossref), clean dataset 24 dòng đúng 10 cột theo contract, embedding manifest với collection `papers-baseline` (MiniLM-L6-v2, cosine, `top_k=4`), test set cố định 73 câu, metrics + answers, 7 quality check và freshness report, cùng `phase1_report.md`. Baseline đạt `retrieval_hit_rate` 1.000, `mean_token_f1` 0.921, `judge_accuracy` 0.918 và `mean_judge_score` 4.67/5, với **judge thật chạy đủ 73/73** (không rơi vào heuristic dự phòng).
 
-Corruption tạo 6 loại lỗi có chủ đích, kéo dataset từ 24 xuống 22 dòng. Ảnh hưởng rõ nhất là **nhóm lỗi phá nội dung** — blank summary và noise summary — vì chúng đánh trực tiếp vào `text_for_embedding`, làm cả retrieval lẫn câu trả lời cùng hỏng: `judge_accuracy` rơi từ 0.918 xuống **0.260** (−0.658) và `retrieval_hit_rate` từ 1.000 xuống **0.740** (−0.260). Đáng chú ý, `stale_published_date` **không** làm metric thay đổi nhưng khiến freshness fail hoàn toàn (22/22 dòng stale) — đây chính là dạng lỗi im lặng mà chỉ observability bắt được.
+Corruption tạo 6 loại lỗi có chủ đích, kéo dataset từ 24 xuống 22 dòng. Ảnh hưởng rõ nhất là **nhóm lỗi phá nội dung** — blank summary và noise summary — vì chúng đánh trực tiếp vào `text_for_embedding`, làm cả retrieval lẫn câu trả lời cùng hỏng: `judge_accuracy` rơi từ 0.918 xuống **0.274** (−0.658) và `retrieval_hit_rate` từ 1.000 xuống **0.740** (−0.260). Đáng chú ý, `stale_published_date` **không** làm metric thay đổi nhưng khiến freshness fail hoàn toàn (22/22 dòng stale) — đây chính là dạng lỗi im lặng mà chỉ observability bắt được.
 
 Repair chạy lại cleaning từ raw records và phục hồi **chính xác đến từng chữ số**: cả bốn metric trở về đúng giá trị baseline, quality `overall_pass` về `true`, freshness về `is_fresh: true` với 0 dòng stale.
 
@@ -256,10 +256,10 @@ Corruption log:
 
 | Metric/signal | Baseline | Corrupted | Repaired | Thay đổi do corruption | Mức phục hồi | Nhận xét |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `retrieval_hit_rate` | 1.0000 | **0.7397** | 1.0000 | **−0.2603** | **100%** | Mất tài liệu + duplicate đẩy tài liệu đúng ra khỏi top-4 |
-| `mean_token_f1` | 0.9206 | **0.2686** | 0.9206 | **−0.6519** | **100%** | Tụt mạnh nhất — metric tất định nên đây là bằng chứng chắc nhất |
-| `judge_accuracy` | 0.9178 | **0.2603** | 0.9178 | **−0.6575** | **100%** | 67/73 → 19/73 câu đúng |
-| `mean_judge_score` | 4.6712 | **2.0411** | 4.6712 | **−2.6301** | **100%** | Trên thang 1–5 |
+| `retrieval_hit_rate` | 1.0000 | **0.7397** | 1.0000 | **−0.2740** | **100%** | Mất tài liệu + duplicate đẩy tài liệu đúng ra khỏi top-4 |
+| `mean_token_f1` | 0.9206 | **0.2620** | 0.9206 | **−0.6586** | **100%** | Tụt mạnh nhất — metric tất định nên đây là bằng chứng chắc nhất |
+| `judge_accuracy` | 0.9178 | **0.2740** | 0.9178 | **−0.6438** | **100%** | 67/73 → 20/73 câu đúng |
+| `mean_judge_score` | 4.6712 | **2.0959** | 4.6712 | **−2.5753** | **100%** | Trên thang 1–5 |
 | Quality checks pass/fail | `true` | **`false`** | `true` | 3 check fail | **100%** | Fail: `paper_id_unique`, `summary_length`, `freshness` |
 | Freshness status | Fresh | **Stale** | Fresh | 0 → 22 dòng stale | **100%** | `latest_published` 2026-08-01 → 2021-07-02 |
 
@@ -268,7 +268,7 @@ Ba trạng thái dùng chung `data/eval/test_set.json` (73 câu), chung `top_k=4
 ### Kết luận có quan hệ nhân quả
 
 **1. `blank_summary` + `duplicate_rows` → quality signal fail → retrieval và answer metric cùng tụt.**
-Xóa nội dung 3 summary khiến `summary_length` chuyển fail (`min_chars` 826 → 0), và nhân bản 3 dòng khiến `paper_id_unique` fail. Vì `text_for_embedding` được dựng lại sau khi corrupt, vector đem đi index thực sự bị hỏng — `retrieval_hit_rate` xuống 0.7397 (−0.2603) và `mean_token_f1` xuống 0.2686 (−0.6519). Đây là chuỗi hoàn chỉnh từ *thay đổi dữ liệu* → *tín hiệu quan sát* → *chất lượng agent*.
+Xóa nội dung 3 summary khiến `summary_length` chuyển fail (`min_chars` 826 → 0), và nhân bản 3 dòng khiến `paper_id_unique` fail. Vì `text_for_embedding` được dựng lại sau khi corrupt, vector đem đi index thực sự bị hỏng — `retrieval_hit_rate` xuống 0.7397 (−0.2603) và `mean_token_f1` xuống 0.2620 (−0.6586). Đây là chuỗi hoàn chỉnh từ *thay đổi dữ liệu* → *tín hiệu quan sát* → *chất lượng agent*.
 
 **2. Repair từ raw → quality và freshness phục hồi → metric phục hồi hoàn toàn.**
 Chạy lại cleaning từ `crossref_records.json` đưa dataset về 24 dòng / 24 `paper_id` duy nhất, `overall_pass` về `true`, `is_fresh` về `true` với 0 dòng stale. Cả bốn metric trở về đúng giá trị baseline — khớp tuyệt đối, không phải xấp xỉ.
