@@ -13,7 +13,7 @@
 - **collection_name:** papers-baseline
 - **top_k:** 4
 - **llm_provider:** openrouter
-- **llm_model:** deepseek-v4-pro
+- **llm_model:** gemini-2.5-flash
 - **test_set_size:** 73
 - **test_set_mode:** loaded_existing
 
