@@ -22,7 +22,7 @@ Ký hiệu: ✅ xong & đã xác minh · 🟡 code xong, chờ blocker · ⬜ ch
 | T7 Baseline pipeline | TV4 Quang | 🟡 qua 5/7 bước, chờ T5 | CP3 |
 | T8 Baseline report | TV3 Sáng | ⬜ | CP3 |
 | T9 Corruption + log | TV2 Hân | ⬜ | CP4 |
-| T10 Repair từ raw | TV2 + TV1 | ⬜ | CP4 |
+| T10 Repair từ raw | **TV1** (đổi từ TV2+TV1) | ⬜ chỉ còn xác minh, code đã có | CP4 |
 | T11 Corruption flow | TV4 Quang | 🟡 chờ T7 | CP5 |
 | T12 Comparison report | TV3 Sáng | ⬜ | CP5 |
 | T13 Group + báo cáo cá nhân | TV4 chủ trì | ⬜ (4 file cá nhân đã tạo khung) | CP6 |
