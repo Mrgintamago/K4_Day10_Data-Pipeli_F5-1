@@ -21,16 +21,25 @@ Ký hiệu: ✅ xong & đã xác minh · 🟡 code xong, chờ blocker · ⬜ ch
 | T6 Index + eval wiring | TV4 Quang | ✅ chạy thật, hit_rate=1.000 | CP2 |
 | T7 Baseline pipeline | TV4 Quang | ✅ **chạy hết 7/7 bước** | CP3 |
 | T8 Baseline report | TV3 Sáng | ✅ `phase1_report.md` khớp JSON | CP3 |
-| T9 Corruption + log | TV2 Hân | ⬜ **đang chặn cả nhóm** | CP4 |
-| T10 Repair từ raw | **TV1** (đổi từ TV2+TV1) | ⬜ chỉ còn xác minh, code đã có | CP4 |
-| T11 Corruption flow | TV4 Quang | 🟡 chờ T7 | CP5 |
-| T12 Comparison report | TV3 Sáng | ⬜ | CP5 |
+| T9 Corruption + log | TV2 Hân | ✅ 6 loại lỗi, 24→22 rows | CP4 |
+| T10 Repair từ raw | **TV1** (đổi từ TV2+TV1) | ✅ repaired == baseline chính xác | CP4 |
+| T11 Corruption flow | TV4 Quang | ✅ **chạy hết 5/5 bước** | CP5 |
+| T12 Comparison report | TV3 Sáng | ✅ `corruption_report.md` đã sinh | CP5 |
 | T13 Group + báo cáo cá nhân | TV4 chủ trì | ⬜ (4 file cá nhân đã tạo khung) | CP6 |
 | T14 Review + demo | Cả nhóm | ⬜ | CP6 |
 
-**Pha 1 XONG.** `script/run_phase1.py` chạy hết 7/7 bước, đủ artifact. Blocker còn lại: **T9 corruption** (TV2 Hân) — chặn T11, T12, T13.
+## ✅ PHA 1 + PHA 2 XONG — cả hai entrypoint chạy end-to-end
 
-✅ **Đã sửa lỗi 24/24 câu `authors`** — `judge_accuracy` 0.589 → **0.918** (judge thật, 0/73 fallback), `token_f1` 0.619 → **0.921**. LLM provider đổi sang `deepseek-v4-pro`.
+| Metric | Baseline | Corrupted | Repaired |
+| --- | ---: | ---: | ---: |
+| `retrieval_hit_rate` | 1.000 | **0.740** | 1.000 |
+| `mean_token_f1` | 0.921 | **0.269** | 0.921 |
+| `judge_accuracy` | 0.918 | **0.260** | 0.918 |
+| `mean_judge_score` | 4.671 | **2.041** | 4.671 |
+
+`repaired == baseline` chính xác đến từng chữ số. Judge thật cả 3 bộ (fallback 0/73).
+
+**Còn lại: T13 group report (TV4 chủ trì) + T14 review & demo (cả nhóm).**
 
 🔒 **Test set đã KHÓA** từ đây — `data/eval/test_set.json` không được sinh lại nữa, nếu không 3 trạng thái mất khả năng so sánh.
 

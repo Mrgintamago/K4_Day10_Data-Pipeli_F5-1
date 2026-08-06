@@ -174,11 +174,11 @@ Ký hiệu ở cột ID: ✅ đã xong và đã xác minh · 🟡 code viết xo
 | ✅ T6 | CP1 → **CP2** `00:20–01:20` | Embed + index + eval wiring | `retrieval/index.py`, `evaluation/metrics.py` | TV4 | T3, T4 | T7 | query `top_k=4` trả về doc IDs hợp lệ |
 | ✅ T7 | **CP3** `01:20–02:00` | Baseline pipeline | `pipelines/phase1.py` | TV4 | T2, T3, T4, T5, T6 | T8, T9, T11 | `run_phase1.py` sinh đủ artifact ở CP3 |
 | ✅ T8 | CP2 → **CP3** `00:50–02:00` | Baseline report | `observability/reporting.py::generate_phase1_report` | TV3 | T5, T7 | T12 | mọi số trong `phase1_report.md` khớp JSON |
-| 🔴 T9 | **CP4** `02:15–02:55` | Corruption + log | `ingestion/corruption.py` | TV2 | T3, T7 | T10, T11 | `corruption_log.json` ghi rõ loại lỗi, record, trước/sau |
-| T10 | **CP4** `02:15–02:55` | Repair từ raw (xác minh lineage) | `data/clean/papers_clean_repaired.*` | **TV1** (đổi từ TV2+TV1) | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
-| 🟡 T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
-| T12 | CP4 → **CP5** `02:15–03:25` | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
-| T13 | **CP6** `03:25–04:00` | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
+| ✅ T9 | **CP4** `02:15–02:55` | Corruption + log | `ingestion/corruption.py` | TV2 | T3, T7 | T10, T11 | `corruption_log.json` ghi rõ loại lỗi, record, trước/sau |
+| ✅ T10 | **CP4** `02:15–02:55` | Repair từ raw (xác minh lineage) | `data/clean/papers_clean_repaired.*` | **TV1** (đổi từ TV2+TV1) | T2, T9 | T11 | repaired data sinh lại từ raw, không copy baseline |
+| ✅ T11 | CP4 → **CP5** `02:15–03:25` | Corruption flow end-to-end | `pipelines/corruption_flow.py` | TV4 | T5, T7, T9, T10 | T12 | 3 bộ metrics dùng cùng test set + `top_k` |
+| ✅ T12 | CP4 → **CP5** `02:15–03:25` | Comparison report | `reporting.py::generate_corruption_report` | TV3 | T8, T11 | T13 | có delta baseline/corrupted/repaired, không kết luận vượt số liệu |
+| 🟡 T13 | **CP6** `03:25–04:00` | Group + 4 báo cáo cá nhân | `report/*.md` | TV4 chủ trì | T12 | T14 | số trong report khớp artifact, không có secret |
 | T14 | **CP6** `03:25–04:00` | Review rubric + demo | — | Cả nhóm | T13 | — | chạy lại 2 entrypoint sạch, `git status` gọn |
 
 **Mốc chốt cứng theo checkpoint** — đến giờ mà chưa qua thì cắt phạm vi, không kéo dài:
