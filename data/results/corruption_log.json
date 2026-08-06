@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "baseline_rows": 24,
+  "corrupted_rows": 22,
+  "baseline_paper_ids": [
+    "10.2118/234689-pa",
+    "10.1007/s10278-026-02086-9",
+    "10.21203/rs.3.rs-10178277/v1",
+    "10.2196/preprints.106157",
+    "10.3390/buildings16132637",
+    "10.21079/11681/50309",
+    "10.1111/exsy.70341",
+    "10.63646/kpqm1958",
+    "10.21203/rs.3.rs-10012178/v1",
+    "10.47576/2949-1894.2026.7.7.023",
+    "10.21203/rs.3.rs-9882260/v1",
+    "10.52060/juptik.v4i1.4318",
+    "10.54254/2753-8818/2026.dl34055",
+    "10.22214/ijraset.2026.82233",
+    "10.21203/rs.3.rs-9770645/v1",
+    "10.32473/flairs.39.1.141782",
+    "10.55041/isjem07213",
+    "10.1093/sleep/zsag091.0346",
+    "10.20944/preprints202604.0339.v1",
+    "10.70121/001c.158711",
+    "10.36227/techrxiv.177272838.89432844/v1",
+    "10.3390/app16052244",
+    "10.35314/3y9hy151",
+    "10.20944/preprints202602.0996.v1"
+  ],
+  "corrupted_paper_ids": [
+    "10.21079/11681/50309",
+    "10.1111/exsy.70341",
+    "10.63646/kpqm1958",
+    "10.21203/rs.3.rs-10012178/v1",
+    "10.47576/2949-1894.2026.7.7.023",
+    "10.21203/rs.3.rs-9882260/v1",
+    "10.52060/juptik.v4i1.4318",
+    "10.54254/2753-8818/2026.dl34055",
+    "10.22214/ijraset.2026.82233",
+    "10.21203/rs.3.rs-9770645/v1",
+    "10.32473/flairs.39.1.141782",
+    "10.55041/isjem07213",
+    "10.1093/sleep/zsag091.0346",
+    "10.20944/preprints202604.0339.v1",
+    "10.70121/001c.158711",
+    "10.36227/techrxiv.177272838.89432844/v1",
+    "10.3390/app16052244",
+    "10.35314/3y9hy151",
+    "10.20944/preprints202602.0996.v1",
+    "10.22214/ijraset.2026.82233",
+    "10.1111/exsy.70341",
+    "10.21203/rs.3.rs-9882260/v1"
+  ],
+  "events": [
+    {
+      "corruption_type": "drop_latest",
+      "affected_paper_ids": [
+        "10.2118/234689-pa",
+        "10.1007/s10278-026-02086-9",
+        "10.21203/rs.3.rs-10178277/v1",
+        "10.2196/preprints.106157",
+        "10.3390/buildings16132637"
+      ],
+      "parameter": {
+        "fraction": 0.2,
+        "n_drop": 5,
+        "sort_by": "age_days"
+      },
+      "before": 24,
+      "after": 19
+    },
+    {
+      "corruption_type": "blank_summary",
+      "affected_paper_ids": [
+        "10.55041/isjem07213",
+        "10.22214/ijraset.2026.82233",
+        "10.20944/preprints202604.0339.v1"
+      ],
+      "parameter": {
+        "fraction": 0.15,
+        "n": 3
+      },
+      "before": [
+        "Abstract - This work focuses on the two crucial bottlenecks in Retrieval-Augmented Generation (RAG): high inference latency and expensive computation cost. RAG enhances the factual correctness of Large Language Models (LLMs) by utilizing external knowledge sources; However, the auto-To achieve a good recall, the system applies a two-way retrieval mechanism: Dense retrieval: This module uses BAAI/bge-small-en-v1.5 to create a 384-dimensional embedding space, where queries and documents are mapped. The embeddings are stored in a FAISS IndexFlatL2. Sparse retrieval: This module uses TF-IDF vectorization to capture an exact keyword match. Reranking: A simple heuristic mechanism of matching substrings of the query terms in the documents selected to perform the final step of ranking them for prompt introduce a novel speculative RAG framework that combines hybrid retrieval with speculative decoding. Our framework employs hybrid dense vector search (BGE-small) and sparse keyword search (TF-IDF) for enhanced recall followed by a lightweight re-ranker model. A compact draft model (TinyLlama-1.1B) makes tentative future token generation, then a larger verifier model (Mistral-7B) checks the correctness of the candidate token. Empirical experiments demonstrate 33% and 29% improvement in inference latency and token reduction, respectively, compared to the baseline of a typical 7B model, while retaining 94% accuracy on factoid tasks. Key Words: Retrieval-Augmented Generation, Speculative Decoding, Large Language Models, Inference Optimization, Hybrid Retrieval",
+        "Knowledge graphs (KGs) hold facts about the world as connected triples, and they have become a backbone for any system that needs to reason over linked information. The task of Knowledge Graph Question Answering (KGQA) is to map a natural-language question onto the right entity, or set of entities, somewhere inside such a graph. Two communities have been pulling at this problem from opposite ends. Large language models (LLMs) read a question fluently but tend to invent facts and stumble on multi-hop chains they cannot verify. Graph neural networks (GNNs), on the other side, are good at walking through neighbourhoods and weighing relations, but cannot phrase an answer the way a person would. In this work, we describe a practical hybrid that places the two inside a retrieval- augmented generation (RAG) loop. A GNN first prunes a small subgraph around the question's seed entities and ranks candidate answers; we then extract shortest paths between the seeds and the top candidates, score each path with a lightweight function that combines GNN attention with degree centrality, and finally verbalise the surviving paths into plain-English sentences before passing them to a 7-8B open-source LLM. The proposed entity-priority scoring step is training-free and runs in milliseconds, yet it lifts Hits@1 by roughly 4-5 percentage points on the harder questions of ComplexWebQuestions. Experiments on WebQuestionsSP and ComplexWebQuestions show competitive or superior results against recent baselines, with the largest gains on multi-entity and three-or-more hop queries. The pipeline uses about one LLM call per question, runs comfortably on a single mid-range GPU, and exposes its reasoning as a short list of human-readable paths that anyone can audit. We argue that this combination of grounded retrieval, lightweight path scoring, and modest model size makes the approach particularly suited to academic and resourceconstrained settings.",
+        "This study investigates a method that integrates retrieval-augmented mechanisms into large language model agents for scientific literature review generation. The approach addresses the limitations of traditional review models that rely on parametric knowledge with insufficient timeliness and limited coverage. Incorporating external document retrieval and dynamic information fusion into the generation process enhances the accuracy and completeness of the output. The overall framework consists of query encoding, semantic retrieval, document filtering, knowledge fusion, language modeling, task planning, memory storage, and reinforcement optimization, forming a closed loop of retrieval, understanding, and generation. Relevant document fragments are first retrieved through semantic vector search to ensure comprehensive and reliable information sources. These external representations are then integrated with the internal embeddings of the language model through weighted fusion, which preserves fluency while maintaining factual grounding. The task planning module constrains logical flow and text structure, and reinforcement learning optimization further improves relevance and consistency. Comparative experiments on large-scale scientific literature datasets demonstrate that the method outperforms existing approaches on ROUGE, BLEU, METEOR, and diversity metrics, validating its effectiveness and practicality. The findings show that combining retrieval augmentation with agent architectures can significantly improve coverage, accuracy, and language quality in review generation, providing a feasible solution for knowledge organization in complex literature environments."
+      ],
+      "after": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "corruption_type": "noise_summary",
+      "affected_paper_ids": [
+        "10.55041/isjem07213",
+        "10.21079/11681/50309",
+        "10.1111/exsy.70341",
+        "10.70121/001c.158711"
+      ],
+      "parameter": {
+        "fraction": 0.2,
+        "n": 4,
+        "token": "corruptnoise"
+      },
+      "before": [
+        "",
+        "The US Army Corps of Engineers (USACE) Civil Works (CW) research and development (R&D) mission is to address challenging environmental sustainability problems through innovative science and engineering, which helps to ensure a safer, more prosperous, and more resilient nation. To achieve this, the US Army Engineer Research and Development Center (ERDC) plans, executes, leads, and directs many R&D programs in coordination with USACE Headquarters, Districts, and Divisions through its multiple strategic focus areas, which include infrastructure, water modeling, crisis preparedness, ecosystem, sediment management, data, artificial intelligence, and robotics. In this process, much information is generated, including internal progress reviews, financial reports, scopes of work, work package planning, and success stories.",
+        "ABSTRACT As tool repositories for Large Language Model (LLM) agents grow from dozens to hundreds of endpoints, flat retrieval paradigms that treat the repository as an unstructured list suffer from context overload, cross\u2010domain semantic collision and degraded selection accuracy. We propose Hi\u2010RAG, a Hierarchical Retrieval\u2010Augmented Generation framework that exploits the Type Service Tool structure of the Model Context Protocol (MCP) via a principled coarse\u2010to\u2010fine pipeline. Stage 1 applies a Tool\u2010as\u2010Proxy hybrid retrieval strategy (BM25 sparse retrieval combined with dense bi\u2010encoder search, fused via Weighted Reciprocal Rank Fusion) to identify candidate services efficiently. Stage 2 performs type\u2010aware re\u2010ranking over a local heterogeneous graph, integrating a domain\u2010level gating mechanism with contextualised tool attention for precise service scoring. We further introduce MCPBench, the first benchmark for hierarchical tool selection, comprising 201 tools across 40 real\u2010enterprise services\u201423% of queries require multi\u2010service reasoning. Experiments across five LLMs show Hi\u2010RAG improves Top\u20101 accuracy by up to 7.5% (single\u2010service) and 10.0% (multi\u2010service) over Flat\u2010RAG, while reducing token consumption by up to 89% against full\u2010context injection. Comparisons with a strong late\u2010interaction baseline (ColBERT\u2010RAG) further confirm the superiority of Hi\u2010RAG. Zero\u2010shot evaluation on ToolLLM (16,464 tools) confirms scalability, and formal analyses establish context growth with respect to repository size.",
+        "Large Language Models (LLMs) that rely solely on parametric memory learned through training have demonstrated strong performance in biomedical question-answering, but their tendency to hallucinate facts and the difficulty of adjusting and adding to the learned knowledge limit their usefulness in clinical settings. Retrieval-Augmented Generation (RAG) has emerged as a promising solution by adding a non-parametric source of memory and grounding LLM outputs to reputable external sources. This paper aims to survey the evolution of RAG methodologies and highlight the most recent developments and shifts in paradigms like Agentic RAG. We highlight current state-of-the-art biomedical RAG systems, the latest evaluation benchmarks, and empirical findings regarding best fine-tuning practices. We also examine technical including lost-in-the-middle effects and scaling behaviour. Ethical concerns surrounding privacy and bias are brought to attention alongside research gaps. Finally, we discuss future directions of RAG in the biomedical field, including integration into Clinical Decision Support systems (CDS)."
+      ],
+      "after": [
+        " corruptnoise 5471",
+        "The US Army Corps of Engineers (USACE) Civil Works (CW) research and development (R&D) mission is to address challenging environmental sustainability problems through innovative science and engineering, which helps to ensure a safer, more prosperous, and more resilient nation. To achieve this, the US Army Engineer Research and Development Center (ERDC) plans, executes, leads, and directs many R&D programs in coordination with USACE Headquarters, Districts, and Divisions through its multiple strategic focus areas, which include infrastructure, water modeling, crisis preparedness, ecosystem, sediment management, data, artificial intelligence, and robotics. In this process, much information is generated, including internal progress reviews, financial reports, scopes of work, work package planning, and success stories. corruptnoise 7929",
+        "ABSTRACT As tool repositories for Large Language Model (LLM) agents grow from dozens to hundreds of endpoints, flat retrieval paradigms that treat the repository as an unstructured list suffer from context overload, cross\u2010domain semantic collision and degraded selection accuracy. We propose Hi\u2010RAG, a Hierarchical Retrieval\u2010Augmented Generation framework that exploits the Type Service Tool structure of the Model Context Protocol (MCP) via a principled coarse\u2010to\u2010fine pipeline. Stage 1 applies a Tool\u2010as\u2010Proxy hybrid retrieval strategy (BM25 sparse retrieval combined with dense bi\u2010encoder search, fused via Weighted Reciprocal Rank Fusion) to identify candidate services efficiently. Stage 2 performs type\u2010aware re\u2010ranking over a local heterogeneous graph, integrating a domain\u2010level gating mechanism with contextualised tool attention for precise service scoring. We further introduce MCPBench, the first benchmark for hierarchical tool selection, comprising 201 tools across 40 real\u2010enterprise services\u201423% of queries require multi\u2010service reasoning. Experiments across five LLMs show Hi\u2010RAG improves Top\u20101 accuracy by up to 7.5% (single\u2010service) and 10.0% (multi\u2010service) over Flat\u2010RAG, while reducing token consumption by up to 89% against full\u2010context injection. Comparisons with a strong late\u2010interaction baseline (ColBERT\u2010RAG) further confirm the superiority of Hi\u2010RAG. Zero\u2010shot evaluation on ToolLLM (16,464 tools) confirms scalability, and formal analyses establish context growth with respect to repository size. corruptnoise 8481",
+        "Large Language Models (LLMs) that rely solely on parametric memory learned through training have demonstrated strong performance in biomedical question-answering, but their tendency to hallucinate facts and the difficulty of adjusting and adding to the learned knowledge limit their usefulness in clinical settings. Retrieval-Augmented Generation (RAG) has emerged as a promising solution by adding a non-parametric source of memory and grounding LLM outputs to reputable external sources. This paper aims to survey the evolution of RAG methodologies and highlight the most recent developments and shifts in paradigms like Agentic RAG. We highlight current state-of-the-art biomedical RAG systems, the latest evaluation benchmarks, and empirical findings regarding best fine-tuning practices. We also examine technical including lost-in-the-middle effects and scaling behaviour. Ethical concerns surrounding privacy and bias are brought to attention alongside research gaps. Finally, we discuss future directions of RAG in the biomedical field, including integration into Clinical Decision Support systems (CDS). corruptnoise 9662"
+      ]
+    },
+    {
+      "corruption_type": "truncate_title",
+      "affected_paper_ids": [
+        "10.21079/11681/50309",
+        "10.1111/exsy.70341",
+        "10.63646/kpqm1958",
+        "10.21203/rs.3.rs-10012178/v1",
+        "10.47576/2949-1894.2026.7.7.023",
+        "10.21203/rs.3.rs-9882260/v1",
+        "10.52060/juptik.v4i1.4318",
+        "10.54254/2753-8818/2026.dl34055",
+        "10.22214/ijraset.2026.82233",
+        "10.21203/rs.3.rs-9770645/v1",
+        "10.32473/flairs.39.1.141782",
+        "10.55041/isjem07213",
+        "10.1093/sleep/zsag091.0346",
+        "10.20944/preprints202604.0339.v1",
+        "10.70121/001c.158711",
+        "10.36227/techrxiv.177272838.89432844/v1",
+        "10.3390/app16052244",
+        "10.35314/3y9hy151",
+        "10.20944/preprints202602.0996.v1"
+      ],
+      "parameter": {
+        "chars": 40,
+        "n": 19
+      },
+      "before": [
+        "Microsoft Azure artificial intelligence / machine learning hackathon for development of retrieval-augmented generation large language model",
+        "Hi\u2010 RAG : A Hierarchical Retrieval\u2010Augmented Generation Framework for Scalable and Generalisable Tool Selection in Large Language Model Agents",
+        "The Age of Autonomous Agents: A Bibliometric Review of Agentic AI Architectures, Applications, and Emerging Challenges",
+        "Retrieval-Augmented Generation (RAG), Generative AI, and Agentic AI Governance: An Integrated Enterprise Governance Prioritization Architecture",
+        "\u0421\u043d\u0438\u0436\u0435\u043d\u0438\u0435 \u0440\u0438\u0441\u043a\u043e\u0432 \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d\u0438\u044f LLM (Large Language Model) \u0432 \u0441\u0444\u0435\u0440\u0435 \u044d\u043a\u043e\u043d\u043e\u043c\u0438\u0447\u0435\u0441\u043a\u043e\u0439 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u044f\u0442\u0438\u0439 \u043c\u043e\u043b\u043e\u0447\u043d\u043e\u0439 \u043f\u0440\u043e\u043c\u044b\u0448\u043b\u0435\u043d\u043d\u043e\u0441\u0442\u0438 \u043d\u0430 \u043e\u0441\u043d\u043e\u0432\u0435 \u043f\u043e\u0434\u0445\u043e\u0434\u0430 RAG (Retrieval-Augmented Generation)",
+        "Operationalizing Reliability Gaps in Large Language Models: A Semi-Systematic Evidence Map of Reasoning, Factuality, Evaluation, and Retrieval-Augmented Generation",
+        "Chatbot Hybrid Fatwa MUI Menggunakan Retrieval Augmented Generation dan Large Language Model",
+        "Hallucination in Large Language Models and Retrieval-Augmented Generation: Mechanisms, Mitigation, and Evaluation",
+        "Hybrid Graph Neural Network and Large Language Model Framework for Robust Knowledge Graph Question Answering via Retrieval-Augmented Generation",
+        "Adapting Large Language Models for Low-Resource Regulated Domains: A Fine-Tuning and Retrieval-Augmented Generation Approach to Insurance Information Delivery in Kenya",
+        "An Exploratory Study of Agentic Retrieval Augmented Generation for Mental Health Oriented Language Models",
+        "Speculative Retrieval-Augmented Generation for Cost-Efficient Large Language Model Inference",
+        "0346 Retrieval Augmented Generation Improves Large Language Model Performance in Sleep Medicine",
+        "Retrieval-Augmented Large Language Model Agents for Automated Scientific Literature Review Generation",
+        "The Role of Retrieval-Augmented Generation in Improving Factual Accuracy for Medical Large Language Models",
+        "A Survey of (Deep RAG) Deep Retrieval Augmented Generation and Reasoning in Large Language Models",
+        "Hybrid Retrieval-Augmented Generation: Semantic and Structural Integration for Large Language Model Reasoning",
+        "Implementation of Retrieval-Augmented Generation Method on Large Language Model for Development of Campus Service and Information Chatbot",
+        "Clinical Large Language Models with Multi-Stage Instruction Tuning and Advanced Retrieval-Augmented Generation"
+      ],
+      "after": [
+        "Microsoft Azure artificial intelligence",
+        "Hi\u2010 RAG : A Hierarchical Retrieval\u2010Augme",
+        "The Age of Autonomous Agents: A Bibliome",
+        "Retrieval-Augmented Generation (RAG), Ge",
+        "\u0421\u043d\u0438\u0436\u0435\u043d\u0438\u0435 \u0440\u0438\u0441\u043a\u043e\u0432 \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d\u0438\u044f LLM (Large La",
+        "Operationalizing Reliability Gaps in Lar",
+        "Chatbot Hybrid Fatwa MUI Menggunakan Ret",
+        "Hallucination in Large Language Models a",
+        "Hybrid Graph Neural Network and Large La",
+        "Adapting Large Language Models for Low-R",
+        "An Exploratory Study of Agentic Retrieva",
+        "Speculative Retrieval-Augmented Generati",
+        "0346 Retrieval Augmented Generation Impr",
+        "Retrieval-Augmented Large Language Model",
+        "The Role of Retrieval-Augmented Generati",
+        "A Survey of (Deep RAG) Deep Retrieval Au",
+        "Hybrid Retrieval-Augmented Generation: S",
+        "Implementation of Retrieval-Augmented Ge",
+        "Clinical Large Language Models with Mult"
+      ]
+    },
+    {
+      "corruption_type": "stale_published_date",
+      "affected_paper_ids": [
+        "10.21079/11681/50309",
+        "10.1111/exsy.70341",
+        "10.63646/kpqm1958",
+        "10.21203/rs.3.rs-10012178/v1",
+        "10.47576/2949-1894.2026.7.7.023",
+        "10.21203/rs.3.rs-9882260/v1",
+        "10.52060/juptik.v4i1.4318",
+        "10.54254/2753-8818/2026.dl34055",
+        "10.22214/ijraset.2026.82233",
+        "10.21203/rs.3.rs-9770645/v1",
+        "10.32473/flairs.39.1.141782",
+        "10.55041/isjem07213",
+        "10.1093/sleep/zsag091.0346",
+        "10.20944/preprints202604.0339.v1",
+        "10.70121/001c.158711",
+        "10.36227/techrxiv.177272838.89432844/v1",
+        "10.3390/app16052244",
+        "10.35314/3y9hy151",
+        "10.20944/preprints202602.0996.v1"
+      ],
+      "parameter": {
+        "years_back": 5,
+        "n": 19
+      },
+      "before": [
+        "2026-07-01",
+        "2026-06-30",
+        "2026-06-30",
+        "2026-06-15",
+        "2026-06-15",
+        "2026-06-02",
+        "2026-06-01",
+        "2026-06-01",
+        "2026-05-31",
+        "2026-05-22",
+        "2026-05-06",
+        "2026-05-06",
+        "2026-05-01",
+        "2026-04-06",
+        "2026-03-15",
+        "2026-03-05",
+        "2026-02-26",
+        "2026-02-26",
+        "2026-02-12"
+      ],
+      "after": [
+        "2021-07-02",
+        "2021-07-01",
+        "2021-07-01",
+        "2021-06-16",
+        "2021-06-16",
+        "2021-06-03",
+        "2021-06-02",
+        "2021-06-02",
+        "2021-06-01",
+        "2021-05-23",
+        "2021-05-07",
+        "2021-05-07",
+        "2021-05-02",
+        "2021-04-07",
+        "2021-03-16",
+        "2021-03-06",
+        "2021-02-27",
+        "2021-02-27",
+        "2021-02-13"
+      ]
+    },
+    {
+      "corruption_type": "duplicate_rows",
+      "affected_paper_ids": [
+        "10.22214/ijraset.2026.82233",
+        "10.1111/exsy.70341",
+        "10.21203/rs.3.rs-9882260/v1"
+      ],
+      "parameter": {
+        "fraction": 0.15,
+        "n_duplicated": 3
+      },
+      "before": 19,
+      "after": 22
+    }
+  ]
+}
